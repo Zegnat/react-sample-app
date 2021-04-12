@@ -1,6 +1,6 @@
-# Refapp React+Typescript work sample excercise for developer applicants
+# Refapp React+Typescript work sample exercise for developers 
 
-This small repo contains instructions on a small hands-on excercise for candidates applying to a developer position at
+This small repo contains instructions on a small hands-on exercise for candidates applying to a developer position at
 [Refapp](https://refapp.com).
 
 ## Overall goal
@@ -13,6 +13,7 @@ of characters and words in the text for display.
 
 
 ## Constraints
+
 You must write all code in Typescript, create functional ReactJS components
 and use components from the material-ui library instead of builtin html elements.
 
@@ -24,6 +25,7 @@ The code should be clean and legible.
 
 
 ## Prerequisites
+
 These are the technologies you need use in order to successfully complete the task:
 
 * npm
