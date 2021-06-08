@@ -1,44 +1,34 @@
-# Refapp React+Typescript work sample exercise for developers 
+# Sample React App
 
-This small repo contains instructions on a small hands-on exercise for candidates applying to a developer position at
-[Refapp](https://refapp.com).
+Sample React App using functional components per a small exercise:
 
-## Overall goal
-Your task is to create a standalone ReactJS+Typescript web page application with a web server that can be started from the command line.
+> The functionality of the web page is for the user to be able to submit a
+> block of text and via a simulation of a slow external API receive the
+> number of characters and words in the text for display.
 
-The functionality of the web page is for the user to be able to submit a block of text and via a simulation
-of a slow external API receive the number
-of characters and words in the text for display.
+## Usage
 
-![Wireframe](Wireframes/Wireframes.001.png)
+After checking out or downloading and extracting this repository, navigate a
+shell instance to the folder and in order run the following to setup the
+environment and start a local web server:
 
+```sh
+npm ci
+npm run dev
+```
 
-## Constraints
+If you want to make sure you are running on the same version of node as me, a
+`.node_version` file has been included for use with tools like [fnm][].
 
-You must write all code in Typescript, create functional ReactJS components
-and use components from the material-ui library instead of builtin html elements.
+## Contraints & Prerequisites
 
-The simulated external API is provided via an `analysis.ts` source code file next to this Readme file.
+- [x] Stand-alone web page application
+- [x] Web server that can be started from the command line
+- [x] npm
+- [x] Typescript
+- [x] ReactJS
+- [x] Material-ui.com (version 4)
 
-## What to focus on
-The design should be nice but don’t overdo it.
-The code should be clean and legible.
+![Wireframe sketch of the site showing a box titled initial screen above a box titled analysis screen.](Wireframes/Wireframes.001.png)
 
-
-## Prerequisites
-
-These are the technologies you need use in order to successfully complete the task:
-
-* npm
-* Typescript
-* ReactJS
-* Material-ui.com (version 4)
-
-## How to submit the results
-
-Package up your project directory along with instructions on how to run the project into a zip file and mail to your contact person at Refapp
-
-### OR
-
-Send a public link to your solution hosted on a git provider (e.g. github or gitlab)
-
+[fnm]: https://github.com/Schniz/fnm
