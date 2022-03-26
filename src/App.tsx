@@ -1,9 +1,9 @@
-import { analyzeText } from "./../analysis";
+import { FormEvent, StrictMode, useState } from "react";
 import { render } from "react-dom";
+import { analyzeText } from "./../analysis";
 import { Form } from "./Form";
 import { Loader } from "./Loader";
 import { Result } from "./Result";
-import { FormEvent, StrictMode, useState } from "react";
 
 const App = () => {
   enum State {
