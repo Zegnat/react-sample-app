@@ -1,8 +1,6 @@
-import Button from "@material-ui/core/Button";
-import Container from "@material-ui/core/Container";
+import { Container, TextField, Button } from "@material-ui/core";
 import { makeStyles } from "@material-ui/core/styles";
-import TextField from "@material-ui/core/TextField";
-import { useState } from "react";
+import { FormEventHandler, useState } from "react";
 
 const useStyles = makeStyles((theme) => ({
   containerMargins: {
@@ -22,7 +20,7 @@ type ExtendedOnSubmit<Base extends (...args: any) => any> = (
 type FormProps = {
   label?: string;
   button?: string;
-  onSubmit: ExtendedOnSubmit<React.FormEventHandler<HTMLFormElement>>;
+  onSubmit: ExtendedOnSubmit<FormEventHandler<HTMLFormElement>>;
 };
 
 export const Form = ({
