@@ -12,16 +12,17 @@ const App: React.FC = () => {
     ShowingResult,
   }
 
-  const textField = React.useRef<HTMLTextAreaElement>();
-
   const [state, setState] = React.useState(State.WaitingForInput);
 
   const [results, setResults] = React.useState({ numWords: 0, numLetters: 0 });
 
-  const analyse = async (event: React.FormEvent<HTMLFormElement>) => {
+  const analyse = async (
+    event: React.FormEvent<HTMLFormElement>,
+    value: string
+  ) => {
     event.preventDefault();
     setState(State.Loading);
-    setResults(await analyzeText(textField.current.value));
+    setResults(await analyzeText(value));
     setState(State.ShowingResult);
   };
 
@@ -32,7 +33,7 @@ const App: React.FC = () => {
       <Result numWords={results.numWords} numLetters={results.numLetters} />
     );
   } else {
-    return <Form ref={textField} onSubmit={analyse} />;
+    return <Form onSubmit={analyse} />;
   }
 };
 

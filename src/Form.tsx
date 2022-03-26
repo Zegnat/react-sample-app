@@ -18,38 +18,36 @@ const RightHandButton = withStyles((theme) => ({
   },
 }))(Button);
 
+type ExtendedOnSubmit<Base extends (...args: any) => any> = (
+  ...args: [...inherit: Parameters<Base>, value: string]
+) => ReturnType<Base>;
+
 interface FormSettings {
   label?: string;
   button?: string;
-  onSubmit: React.FormEventHandler;
-  ref: any;
+  onSubmit: ExtendedOnSubmit<React.FormEventHandler<HTMLFormElement>>;
 }
 
-const Form: React.FC<FormSettings> = React.forwardRef((settings, ref) => {
-  const [submitable, setSubmitable] = React.useState(true);
+const Form: React.FC<FormSettings> = (settings) => {
+  const [textFieldValue, setTextFieldValue] = React.useState("");
 
   const { label = "User types text here", button = "Submit" } = settings;
   return (
     <SpacedContainer
       maxWidth="sm"
       component="form"
-      onSubmit={settings.onSubmit}
+      onSubmit={(event) => settings.onSubmit(event, textFieldValue)}
     >
       <TextField
-        inputRef={ref}
         label={label}
         multiline
         variant="outlined"
         fullWidth
         rows="5"
-        onChange={() => {
-          ref.current.value.length > 0
-            ? setSubmitable(false)
-            : setSubmitable(true);
-        }}
+        onChange={(event) => setTextFieldValue(event.target.value)}
       />
       <RightHandButton
-        disabled={submitable}
+        disabled={textFieldValue.length === 0}
         type="submit"
         color="primary"
         variant="contained"
@@ -58,6 +56,6 @@ const Form: React.FC<FormSettings> = React.forwardRef((settings, ref) => {
       </RightHandButton>
     </SpacedContainer>
   );
-});
+};
 
 export default Form;
