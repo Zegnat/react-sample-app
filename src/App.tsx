@@ -1,7 +1,7 @@
 import * as React from "react";
 import { analyzeText } from "./../analysis";
 import { render } from "react-dom";
-import Form from "./Form";
+import { Form } from "./Form";
 import Loader from "./Loader";
 import Result from "./Result";
 
