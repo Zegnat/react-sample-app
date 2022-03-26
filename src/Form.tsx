@@ -1,42 +1,44 @@
-import * as React from "react";
-import { withStyles } from "@material-ui/core/styles";
 import Button from "@material-ui/core/Button";
 import Container from "@material-ui/core/Container";
+import { makeStyles } from "@material-ui/core/styles";
 import TextField from "@material-ui/core/TextField";
+import { useState } from "react";
 
-const SpacedContainer = withStyles((theme) => ({
-  root: {
+const useStyles = makeStyles((theme) => ({
+  containerMargins: {
     marginTop: theme.spacing(8),
     marginBottom: theme.spacing(8),
   },
-}))(Container);
-
-const RightHandButton = withStyles((theme) => ({
-  root: {
+  buttonPositioning: {
     float: "right",
     marginTop: theme.spacing(2),
   },
-}))(Button);
+}));
 
 type ExtendedOnSubmit<Base extends (...args: any) => any> = (
   ...args: [...inherit: Parameters<Base>, value: string]
 ) => ReturnType<Base>;
 
-interface FormSettings {
+type FormProps = {
   label?: string;
   button?: string;
   onSubmit: ExtendedOnSubmit<React.FormEventHandler<HTMLFormElement>>;
-}
+};
 
-const Form: React.FC<FormSettings> = (settings) => {
-  const [textFieldValue, setTextFieldValue] = React.useState("");
+export const Form = ({
+  label = "User types text here",
+  button = "Submit",
+  onSubmit,
+}: FormProps) => {
+  const [textFieldValue, setTextFieldValue] = useState("");
+  const classes = useStyles();
 
-  const { label = "User types text here", button = "Submit" } = settings;
   return (
-    <SpacedContainer
+    <Container
       maxWidth="sm"
       component="form"
-      onSubmit={(event) => settings.onSubmit(event, textFieldValue)}
+      onSubmit={(event) => onSubmit(event, textFieldValue)}
+      classes={{ root: classes.containerMargins }}
     >
       <TextField
         label={label}
@@ -46,16 +48,15 @@ const Form: React.FC<FormSettings> = (settings) => {
         rows="5"
         onChange={(event) => setTextFieldValue(event.target.value)}
       />
-      <RightHandButton
+      <Button
         disabled={textFieldValue.length === 0}
         type="submit"
         color="primary"
         variant="contained"
+        classes={{ root: classes.buttonPositioning }}
       >
         {button}
-      </RightHandButton>
-    </SpacedContainer>
+      </Button>
+    </Container>
   );
 };
-
-export default Form;
