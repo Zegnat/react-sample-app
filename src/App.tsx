@@ -1,7 +1,7 @@
 import { analyzeText } from "./../analysis";
 import { render } from "react-dom";
 import { Form } from "./Form";
-import Loader from "./Loader";
+import { Loader } from "./Loader";
 import { Result } from "./Result";
 import { FormEvent, StrictMode, useState } from "react";
 
