@@ -2,7 +2,7 @@ import { Container, Typography } from "@material-ui/core";
 import { makeStyles } from "@material-ui/core/styles";
 
 const useStyles = makeStyles((theme) => ({
-  containerMargins: {
+  root: {
     marginTop: theme.spacing(8),
     marginBottom: theme.spacing(8),
   },
@@ -13,14 +13,10 @@ type ResultProps = {
   numLetters: number;
 };
 
-export const Result = ({ numWords, numLetters }: ResultProps) => {
-  const classes = useStyles();
-
-  return (
-    <Container maxWidth="sm" classes={{ root: classes.containerMargins }}>
-      <Typography align="center">
-        Your text consists of {numWords} words {numLetters} letters
-      </Typography>
-    </Container>
-  );
-};
+export const Result = ({ numWords, numLetters }: ResultProps) => (
+  <Container maxWidth="sm" classes={useStyles()}>
+    <Typography align="center">
+      Your text consists of {numWords} words {numLetters} letters
+    </Typography>
+  </Container>
+);
