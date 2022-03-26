@@ -1,21 +1,26 @@
-import * as React from "react";
-import Box from "@material-ui/core/Box";
-import Typography from "@material-ui/core/Typography";
+import { Container, Typography } from "@material-ui/core";
+import { makeStyles } from "@material-ui/core/styles";
 
-interface ResultValues {
+const useStyles = makeStyles((theme) => ({
+  containerMargins: {
+    marginTop: theme.spacing(8),
+    marginBottom: theme.spacing(8),
+  },
+}));
+
+type ResultProps = {
   numWords: number;
   numLetters: number;
-}
-
-const Result: React.FC<ResultValues> = (results) => {
-  return (
-    <Box textAlign="center" marginTop={8}>
-      <Typography>
-        Your text consists of {results.numWords} words ({results.numLetters}{" "}
-        letters)
-      </Typography>
-    </Box>
-  );
 };
 
-export default Result;
+export const Result = ({ numWords, numLetters }: ResultProps) => {
+  const classes = useStyles();
+
+  return (
+    <Container maxWidth="sm" classes={{ root: classes.containerMargins }}>
+      <Typography align="center">
+        Your text consists of {numWords} words {numLetters} letters
+      </Typography>
+    </Container>
+  );
+};
