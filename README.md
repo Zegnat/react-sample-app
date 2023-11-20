@@ -29,7 +29,7 @@ If you want to make sure you are running on the same version of node as me, a
 - [x] ReactJS
 - [x] Material-ui.com (version 4)
 
-## Notes on constraints
+### Notes on constraints
 
 As of 2023-11-20 the final release of Material UI v4 is [v4.12.4][latest-mui].
 This also limits the version of React that can be used in this repository to
