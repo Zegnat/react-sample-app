@@ -1,17 +1,18 @@
 {
   "name": "work-sample-react-typescript",
   "dependencies": {
-    "@material-ui/core": "^4.12.3",
+    "@material-ui/core": "^4.12.4",
     "react": "^17.0.2",
     "react-dom": "^17.0.2"
   },
   "devDependencies": {
-    "@tsconfig/create-react-app": "^1.0.2",
-    "@types/react": "^17.0.43",
-    "@types/react-dom": "^17.0.14",
-    "parcel": "^2.4.0",
-    "prettier": "^2.6.1",
-    "typescript": "^4.6.3"
+    "@tsconfig/create-react-app": "^2.0.1",
+    "@tsconfig/strictest": "^2.0.2",
+    "@types/react": "^17.0.70",
+    "@types/react-dom": "^17.0.23",
+    "parcel": "^2.10.3",
+    "prettier": "^3.1.0",
+    "typescript": "^5.2.2"
   },
   "scripts": {
     "dev": "parcel src/index.html",

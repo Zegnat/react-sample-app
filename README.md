@@ -29,6 +29,14 @@ If you want to make sure you are running on the same version of node as me, a
 - [x] ReactJS
 - [x] Material-ui.com (version 4)
 
+## Notes on constraints
+
+As of 2023-11-20 the final release of Material UI v4 is [v4.12.4][latest-mui].
+This also limits the version of React that can be used in this repository to
+major version 17. The final release here is [v17.0.2][latest-react].
+
 ![Wireframe sketch of the site showing a box titled initial screen above a box titled analysis screen.](Wireframes/Wireframes.001.png)
 
 [fnm]: https://github.com/Schniz/fnm
+[latest-mui]: https://github.com/mui/material-ui/releases/tag/v4.12.4
+[latest-react]: https://github.com/facebook/react/releases/tag/v17.0.2
