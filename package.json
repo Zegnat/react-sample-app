@@ -5,12 +5,14 @@
     "react": "^17.0.2",
     "react-dom": "^17.0.2"
   },
+  "optionalDependencies": {
+    "parcel": "^2.10.3"
+  },
   "devDependencies": {
     "@tsconfig/create-react-app": "^2.0.1",
     "@tsconfig/strictest": "^2.0.2",
     "@types/react": "^17.0.70",
     "@types/react-dom": "^17.0.23",
-    "parcel": "^2.10.3",
     "prettier": "^3.1.0",
     "typescript": "^5.2.2"
   },
