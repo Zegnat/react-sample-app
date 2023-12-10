@@ -13,7 +13,7 @@ shell instance to the folder and in order run the following to setup the
 environment and start a local web server:
 
 ```sh
-npm ci
+npm ci --omit="dev"
 npm run dev
 ```
 
