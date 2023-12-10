@@ -2,22 +2,20 @@
   "name": "work-sample-react-typescript",
   "dependencies": {
     "@material-ui/core": "^4.12.4",
-    "react": "^17.0.2",
-    "react-dom": "^17.0.2"
-  },
-  "optionalDependencies": {
-    "parcel": "^2.10.3"
-  },
-  "devDependencies": {
     "@tsconfig/create-react-app": "^2.0.1",
     "@tsconfig/strictest": "^2.0.2",
+    "react": "^17.0.2",
+    "react-dom": "^17.0.2",
+    "vite": "^5.0.7"
+  },
+  "devDependencies": {
     "@types/react": "^17.0.70",
     "@types/react-dom": "^17.0.23",
     "prettier": "^3.1.0",
     "typescript": "^5.2.2"
   },
   "scripts": {
-    "dev": "parcel src/index.html",
+    "dev": "vite",
     "style": "prettier --write src",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
