@@ -1,17 +1,7 @@
-import { Button, Container, TextField } from "@material-ui/core";
-import { makeStyles } from "@material-ui/core/styles";
+import Button from "@mui/material/Button";
+import Container from "@mui/material/Container";
+import TextField from "@mui/material/TextField";
 import { FormEventHandler, useState } from "react";
-
-const useStyles = makeStyles((theme) => ({
-  containerMargins: {
-    marginTop: theme.spacing(8),
-    marginBottom: theme.spacing(8),
-  },
-  buttonPositioning: {
-    float: "right",
-    marginTop: theme.spacing(2),
-  },
-}));
 
 type ExtendedOnSubmit<Base extends (...args: any) => any> = (
   ...args: [...inherit: Parameters<Base>, value: string]
@@ -29,7 +19,6 @@ export const Form = ({
   onSubmit,
 }: FormProps) => {
   const [textFieldValue, setTextFieldValue] = useState("");
-  const classes = useStyles();
 
   return (
     <Container
@@ -40,7 +29,7 @@ export const Form = ({
         ((event) =>
           onSubmit(event, textFieldValue)) as FormEventHandler<HTMLFormElement>
       }
-      classes={{ root: classes.containerMargins }}
+      sx={{ marginTop: 8, marginBottom: 8 }}
     >
       <TextField
         label={label}
@@ -55,7 +44,7 @@ export const Form = ({
         type="submit"
         color="primary"
         variant="contained"
-        classes={{ root: classes.buttonPositioning }}
+        sx={{ float: "right", marginTop: 2 }}
       >
         {button}
       </Button>

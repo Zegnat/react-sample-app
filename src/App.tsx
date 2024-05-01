@@ -1,5 +1,5 @@
 import { FormEvent, StrictMode, useState } from "react";
-import { render } from "react-dom";
+import { createRoot } from "react-dom/client";
 import { analyzeText } from "./../analysis";
 import { Form } from "./Form";
 import { Loader } from "./Loader";
@@ -35,4 +35,5 @@ const App = () => {
   return <StrictMode>{appState}</StrictMode>;
 };
 
-render(<App />, document.body.firstElementChild);
+const root = createRoot(document.body.firstElementChild!);
+root.render(<App />);

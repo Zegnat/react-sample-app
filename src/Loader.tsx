@@ -1,16 +1,11 @@
-import { CircularProgress, Container } from "@material-ui/core";
-import { makeStyles } from "@material-ui/core/styles";
-
-const useStyles = makeStyles((theme) => ({
-  root: {
-    textAlign: "center",
-    marginTop: theme.spacing(8),
-    marginBottom: theme.spacing(8),
-  },
-}));
+import CircularProgress from "@mui/material/CircularProgress";
+import Container from "@mui/material/Container";
 
 export const Loader = () => (
-  <Container maxWidth="sm" classes={useStyles()}>
+  <Container
+    maxWidth="sm"
+    sx={{ textAlign: "center", marginTop: 8, marginBottom: 8 }}
+  >
     <CircularProgress></CircularProgress>
   </Container>
 );

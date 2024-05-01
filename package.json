@@ -1,16 +1,18 @@
 {
   "name": "work-sample-react-typescript",
   "dependencies": {
-    "@material-ui/core": "^4.12.4",
-    "react": "^17.0.2",
-    "react-dom": "^17.0.2",
+    "@emotion/react": "^11.11.4",
+    "@emotion/styled": "^11.11.5",
+    "@mui/material": "^5.15.16",
+    "react": "^18.3.1",
+    "react-dom": "^18.3.1",
     "vite": "^5.2.10"
   },
   "devDependencies": {
     "@tsconfig/create-react-app": "^2.0.4",
     "@tsconfig/strictest": "^2.0.5",
-    "@types/react": "^17.0.70",
-    "@types/react-dom": "^17.0.23",
+    "@types/react": "^18.3.1",
+    "@types/react-dom": "^18.3.0",
     "prettier": "^3.2.5",
     "typescript": "^5.4.5"
   },
