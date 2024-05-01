@@ -5,5 +5,10 @@ export default defineConfig({
   esbuild: {
     jsxInject: `import React from 'react'`,
     tsconfigRaw: "{}"
-  }
+  },
+  optimizeDeps: {
+    esbuildOptions: {
+      tsconfigRaw: "{}"
+    }
+  },
 });
