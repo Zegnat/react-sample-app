@@ -2,13 +2,13 @@
   "name": "work-sample-react-typescript",
   "dependencies": {
     "@material-ui/core": "^4.12.4",
-    "@tsconfig/create-react-app": "^2.0.1",
-    "@tsconfig/strictest": "^2.0.2",
     "react": "^17.0.2",
     "react-dom": "^17.0.2",
     "vite": "^5.0.7"
   },
   "devDependencies": {
+    "@tsconfig/create-react-app": "^2.0.1",
+    "@tsconfig/strictest": "^2.0.2",
     "@types/react": "^17.0.70",
     "@types/react-dom": "^17.0.23",
     "prettier": "^3.1.0",
