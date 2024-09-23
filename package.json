@@ -3,6 +3,7 @@
   "license": "0BSD",
   "author": "Martijn van der Ven <martijn@vanderven.se>",
   "scripts": {
+    "build": "vite build",
     "check": "tsc --noEmit",
     "dev": "vite",
     "style": "prettier --write src"
