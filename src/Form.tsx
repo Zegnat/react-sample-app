@@ -1,6 +1,8 @@
 import Button from "@mui/material/Button";
 import Container from "@mui/material/Container";
-import TextField from "@mui/material/TextField";
+import FormControl from "@mui/material/FormControl";
+import InputLabel from "@mui/material/InputLabel";
+import OutlinedInput from "@mui/material/OutlinedInput";
 import type { FormEventHandler } from "react";
 
 type FormProps = {
@@ -21,15 +23,19 @@ export const Form = ({
       onSubmit={onSubmit}
       sx={{ marginTop: 8, marginBottom: 8 }}
     >
-      <TextField
-        label={label}
-        name="data"
-        multiline
-        variant="outlined"
-        fullWidth
-        rows="5"
-        required
-      />
+      <FormControl fullWidth>
+        <InputLabel htmlFor="data">
+          {label}
+        </InputLabel>
+        <OutlinedInput
+          label={label} // Set label one more time: https://github.com/mui/material-ui/issues/31287
+          id="data"
+          name="data"
+          multiline
+          rows={5}
+          required
+        />
+      </FormControl>
       <Button
         type="submit"
         color="primary"
