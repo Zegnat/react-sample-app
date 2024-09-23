@@ -1,4 +1,5 @@
 {
+  "exclude": ["dist"],
   "extends": [
     "@tsconfig/strictest/tsconfig.json",
     "@tsconfig/create-react-app/tsconfig.json"
