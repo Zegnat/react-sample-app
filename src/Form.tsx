@@ -4,6 +4,7 @@ import FormControl from "@mui/material/FormControl";
 import InputLabel from "@mui/material/InputLabel";
 import OutlinedInput from "@mui/material/OutlinedInput";
 import type { FormEventHandler } from "react";
+import { useId } from "react";
 
 type FormProps = {
   label?: string;
@@ -16,6 +17,8 @@ export const Form = ({
   button = "Submit",
   onSubmit,
 }: FormProps) => {
+  const inputId = useId();
+
   return (
     <Container
       maxWidth="sm"
@@ -24,12 +27,10 @@ export const Form = ({
       sx={{ marginTop: 8, marginBottom: 8 }}
     >
       <FormControl fullWidth required>
-        <InputLabel htmlFor="data">
-          {label}
-        </InputLabel>
+        <InputLabel htmlFor={inputId}>{label}</InputLabel>
         <OutlinedInput
           label={label} // Set label one more time: https://github.com/mui/material-ui/issues/31287
-          id="data"
+          id={inputId}
           name="data"
           multiline
           rows={5}
