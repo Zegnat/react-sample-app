@@ -1,5 +1,12 @@
 {
   "name": "work-sample-react-typescript",
+  "license": "0BSD",
+  "author": "Martijn van der Ven <martijn@vanderven.se>",
+  "scripts": {
+    "check": "tsc --noEmit",
+    "dev": "vite",
+    "style": "prettier --write src"
+  },
   "dependencies": {
     "@emotion/react": "^11.11.4",
     "@emotion/styled": "^11.11.5",
@@ -16,11 +23,7 @@
     "prettier": "^3.2.5",
     "typescript": "^5.4.5"
   },
-  "scripts": {
-    "check": "tsc --noEmit",
-    "dev": "vite",
-    "style": "prettier --write src"
-  },
-  "author": "Martijn van der Ven <martijn@vanderven.se>",
-  "license": "0BSD"
+  "engines": {
+    "node": "22.9.0"
+  }
 }

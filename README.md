@@ -17,8 +17,13 @@ npm ci --omit="dev"
 npm run dev
 ```
 
-If you want to make sure you are running on the same version of node as me, a
-`.node_version` file has been included for use with tools like [fnm][].
+If you want to make sure you are running on the same version of node as me, it
+has been documented under `engines` in package.json. Use a tool such as [fnm][]
+to install the same version with:
+
+```sh
+fnm use --install-if-missing --resolve-engines
+```
 
 ## Contraints & Prerequisites
 
