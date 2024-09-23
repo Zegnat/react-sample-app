@@ -22,7 +22,7 @@ const App = () => {
     if (event.target instanceof HTMLFormElement === false) {
       return;
     }
-    const value = (new FormData(event.target)).get("data");
+    const value = new FormData(event.target).get("data");
     if (typeof value !== "string") {
       return;
     }
