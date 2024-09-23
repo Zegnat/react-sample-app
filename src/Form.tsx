@@ -1,16 +1,12 @@
 import Button from "@mui/material/Button";
 import Container from "@mui/material/Container";
 import TextField from "@mui/material/TextField";
-import { FormEventHandler, useState } from "react";
-
-type ExtendedOnSubmit<Base extends (...args: any) => any> = (
-  ...args: [...inherit: Parameters<Base>, value: string]
-) => ReturnType<Base>;
+import type { FormEventHandler } from "react";
 
 type FormProps = {
   label?: string;
   button?: string;
-  onSubmit: ExtendedOnSubmit<FormEventHandler<HTMLFormElement>>;
+  onSubmit: FormEventHandler<HTMLFormElement>;
 };
 
 export const Form = ({
@@ -18,25 +14,23 @@ export const Form = ({
   button = "Submit",
   onSubmit,
 }: FormProps) => {
-  const [textFieldValue, setTextFieldValue] = useState("");
-
   return (
     <Container
       maxWidth="sm"
       component="form"
-      onSubmit={(event) => onSubmit(event, textFieldValue)}
+      onSubmit={onSubmit}
       sx={{ marginTop: 8, marginBottom: 8 }}
     >
       <TextField
         label={label}
+        name="data"
         multiline
         variant="outlined"
         fullWidth
         rows="5"
-        onChange={(event) => setTextFieldValue(event.target.value)}
+        required
       />
       <Button
-        disabled={textFieldValue.length === 0}
         type="submit"
         color="primary"
         variant="contained"

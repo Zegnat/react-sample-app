@@ -1,4 +1,5 @@
-import { FormEvent, StrictMode, useState } from "react";
+import type { FormEventHandler } from "react";
+import { StrictMode, useState } from "react";
 import { createRoot } from "react-dom/client";
 import { analyzeText } from "./../analysis";
 import { Form } from "./Form";
@@ -16,12 +17,19 @@ const App = () => {
 
   const [results, setResults] = useState({ numWords: 0, numLetters: 0 });
 
-  const analyse = async (event: FormEvent<HTMLFormElement>, value: string) => {
+  const analyse = (async (event) => {
     event.preventDefault();
+    if (event.target instanceof HTMLFormElement === false) {
+      return;
+    }
+    const value = (new FormData(event.target)).get("data");
+    if (typeof value !== "string") {
+      return;
+    }
     setState(State.Loading);
     setResults(await analyzeText(value));
     setState(State.ShowingResult);
-  };
+  }) satisfies FormEventHandler<HTMLFormElement>;
 
   let appState = <Form onSubmit={analyse} />;
   if (state === State.Loading) {
