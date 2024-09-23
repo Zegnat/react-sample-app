@@ -23,7 +23,7 @@ export const Form = ({
       onSubmit={onSubmit}
       sx={{ marginTop: 8, marginBottom: 8 }}
     >
-      <FormControl fullWidth>
+      <FormControl fullWidth required>
         <InputLabel htmlFor="data">
           {label}
         </InputLabel>
@@ -33,7 +33,6 @@ export const Form = ({
           name="data"
           multiline
           rows={5}
-          required
         />
       </FormControl>
       <Button
