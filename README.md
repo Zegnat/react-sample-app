@@ -36,7 +36,7 @@ fnm use --install-if-missing --resolve-engines
 
 ### Notes on constraints
 
-Ignore the constrained on Material UI v4 and instead use the latest stable v5.
+Ignore the constrained on Material UI v4 and instead use the latest stable v6.
 
 ![Wireframe sketch of the site showing a box titled initial screen above a box titled analysis screen.](Wireframes/Wireframes.001.png)
 
