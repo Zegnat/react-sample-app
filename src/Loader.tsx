@@ -6,6 +6,6 @@ export const Loader = () => (
     maxWidth="sm"
     sx={{ textAlign: "center", marginTop: 8, marginBottom: 8 }}
   >
-    <CircularProgress></CircularProgress>
+    <CircularProgress />
   </Container>
 );
