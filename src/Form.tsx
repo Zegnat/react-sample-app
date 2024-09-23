@@ -24,11 +24,7 @@ export const Form = ({
     <Container
       maxWidth="sm"
       component="form"
-      // Had to add `as` casting, Typescript otherwise errored thinking `event` has an `any` type.
-      onSubmit={
-        ((event) =>
-          onSubmit(event, textFieldValue)) as FormEventHandler<HTMLFormElement>
-      }
+      onSubmit={(event) => onSubmit(event, textFieldValue)}
       sx={{ marginTop: 8, marginBottom: 8 }}
     >
       <TextField
