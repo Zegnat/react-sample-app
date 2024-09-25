@@ -4,7 +4,7 @@ import FormControl from "@mui/material/FormControl";
 import InputLabel from "@mui/material/InputLabel";
 import OutlinedInput from "@mui/material/OutlinedInput";
 import type { FormEventHandler } from "react";
-import { useId } from "react";
+import { useId, useState } from "react";
 
 type FormProps = {
   label?: string;
@@ -18,6 +18,7 @@ export const Form = ({
   onSubmit,
 }: FormProps) => {
   const inputId = useId();
+  const [value, setValue] = useState("");
 
   return (
     <Container
@@ -34,6 +35,8 @@ export const Form = ({
           name="data"
           multiline
           rows={5}
+          value={value}
+          onChange={(e) => setValue(e.target.value)}
         />
       </FormControl>
       <Button

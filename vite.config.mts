@@ -1,3 +1,4 @@
+import { preact } from "@preact/preset-vite";
 import { defineConfig } from "vite";
 
 export default defineConfig({
@@ -6,13 +7,5 @@ export default defineConfig({
     outDir: "../dist",
     emptyOutDir: true,
   },
-  esbuild: {
-    jsxInject: `import React from 'react'`,
-    tsconfigRaw: "{}"
-  },
-  optimizeDeps: {
-    esbuildOptions: {
-      tsconfigRaw: "{}"
-    }
-  },
+  plugins: [preact()]
 });
