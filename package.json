@@ -1,9 +1,10 @@
 {
   "name": "work-sample-react-typescript",
+  "private": true,
   "license": "0BSD",
   "author": "Martijn van der Ven <martijn@vanderven.se>",
   "scripts": {
-    "build": "vite build",
+    "build": "vite build --config vite.build.config.mts",
     "check": "tsc --noEmit",
     "dev": "vite",
     "style": "prettier --write src"
@@ -12,17 +13,19 @@
     "@emotion/react": "^11.14.0",
     "@emotion/styled": "^11.14.0",
     "@mui/material": "^6.3.1",
-    "@preact/preset-vite": "^2.9.4",
-    "preact": "^10.25.4",
-    "react": "npm:@preact/compat@^18.3.1",
-    "react-dom": "npm:@preact/compat@^18.3.1",
+    "@tsconfig/create-react-app": "^2.0.5",
+    "@tsconfig/strictest": "^2.0.5",
+    "@vitejs/plugin-react": "^4.3.4",
+    "react": "^19.0.0",
+    "react-dom": "^19.0.0",
     "vite": "^6.0.7"
   },
   "devDependencies": {
-    "@tsconfig/create-react-app": "^2.0.5",
-    "@tsconfig/strictest": "^2.0.5",
-    "@types/react": "^18.3.12",
-    "@types/react-dom": "^18.3.1",
+    "@preact/compat": "^18.3.1",
+    "@preact/preset-vite": "^2.9.4",
+    "@types/react": "^19.0.4",
+    "@types/react-dom": "^19.0.2",
+    "preact": "^10.25.4",
     "prettier": "^3.4.2",
     "typescript": "^5.7.3"
   },

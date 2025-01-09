@@ -40,4 +40,34 @@ Ignore the constrained on Material UI v4 and instead use the latest stable v6.
 
 ![Wireframe sketch of the site showing a box titled initial screen above a box titled analysis screen.](Wireframes/Wireframes.001.png)
 
+## Production
+
+Special care has been taken to make sure the code results in a very lean final
+production build.
+
+1. Always check where bundle size originates. To inspect the final bundle,
+   [vite-bundle-visualizer][] is manually run. This has helped to decide on how
+   and which Material UI components are imported. E.g. it was discovered that
+   the `TextField` component would always bundle code to potentially render a
+   `Select`, so instead `OutlinedInput` is used.
+2. React is replaced with Preact, using [@preact/compat][], on build. All code
+   is written and tested in development using React before switching it in the final bundle to save on size.
+
+To view the production build in a browser make sure all dependencies (including
+`devDependencies`) are installed.
+
+```sh
+fnm use --install-if-missing --resolve-engines
+npm ci
+npm exec vite preview -- --config vite.build.config.mts
+```
+
+To build a distribution, change the last command to:
+
+```sh
+npm run build
+```
+
+[@preact/compat]: https://www.npmjs.com/package/@preact/compat
 [fnm]: https://github.com/Schniz/fnm
+[vite-bundle-visualizer]: https://www.npmjs.com/package/vite-bundle-visualizer
