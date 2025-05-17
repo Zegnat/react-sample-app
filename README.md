@@ -50,22 +50,31 @@ production build.
    and which Material UI components are imported. E.g. it was discovered that
    the `TextField` component would always bundle code to potentially render a
    `Select`, so instead `OutlinedInput` is used.
+
+   ```sh
+   npx vite-bundle-visualizer --config vite.build.config.mts --sourcemap
+   ```
+
 2. React is replaced with Preact, using [@preact/compat][], on build. All code
    is written and tested in development using React before switching it in the final bundle to save on size.
 
-To view the production build in a browser make sure all dependencies (including
-`devDependencies`) are installed.
+   The difference in size can be confirmed by running the vite-bundle-visualizer
+   with and without the `--config` flag to compare development and production
+   bundles with eachother.
+
+To build a distribution ready for deployment make sure all dependencies
+(including `devDependencies`) are installed.
 
 ```sh
 fnm use --install-if-missing --resolve-engines
 npm ci
-npm exec vite preview -- --config vite.build.config.mts
+npm run build
 ```
 
-To build a distribution, change the last command to:
+To view the distribution build in a browser after bundling, run:
 
 ```sh
-npm run build
+npm exec vite preview -- --config vite.build.config.mts
 ```
 
 [@preact/compat]: https://www.npmjs.com/package/@preact/compat
