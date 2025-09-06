@@ -17,7 +17,7 @@ WORKDIR /app
 RUN npm install vite
 
 # Note that Distroless does not tag exact node versions, for replication we fix the hash
-FROM gcr.io/distroless/nodejs24-debian12@sha256:1ab51c2cd3568f94aa31d4e5eb7e7918a16a30179d004a0c7011376783eb5dbf AS final
+FROM gcr.io/distroless/nodejs24-debian12:nonroot@sha256:1ab51c2cd3568f94aa31d4e5eb7e7918a16a30179d004a0c7011376783eb5dbf AS final
 ENV NODE_ENV=production
 COPY --from=build ["/app/dist", "/app/dist"]
 COPY --from=vite ["/app/node_modules", "/app/node_modules"]

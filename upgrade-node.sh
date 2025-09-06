@@ -1,10 +1,10 @@
 #!/usr/bin/env bash
 set -euo pipefail
 
-IMAGE=gcr.io/distroless/nodejs24-debian12
+IMAGE=gcr.io/distroless/nodejs24-debian12:nonroot
 
 # Use gcrane to request the exact digest of the latest Distroless LTS Node.js
-DIGEST=$(docker run --rm gcr.io/go-containerregistry/gcrane digest ${IMAGE}:nonroot 2>/dev/null)
+DIGEST=$(docker run --rm gcr.io/go-containerregistry/gcrane digest ${IMAGE} 2>/dev/null)
 
 # Get the exact version of Node.js from the container
 VERSION=$(docker run --rm ${IMAGE}@${DIGEST} "-v")
