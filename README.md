@@ -6,6 +6,8 @@ Sample React App using functional components per a small exercise:
 > block of text and via a simulation of a slow external API receive the
 > number of characters and words in the text for display.
 
+[Check out the latest build.](https://zegnat.github.io/react-sample-app/)
+
 ## Usage
 
 After checking out or downloading and extracting this repository, navigate a
