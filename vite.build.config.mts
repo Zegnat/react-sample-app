@@ -2,6 +2,7 @@ import { preact } from "@preact/preset-vite";
 import { defineConfig } from "vite";
 
 const base = process.env["BASE_PATH"] ? { base: process.env["BASE_PATH"] } : {};
+const commit = process.env["COMMIT_HASH"] ?? "<unknown>";
 
 export default defineConfig({
   root: "./src",
@@ -14,5 +15,8 @@ export default defineConfig({
   build: {
     outDir: "../dist",
     emptyOutDir: true,
+  },
+  define: {
+    "import.meta.env.VITE_COMMIT_HASH": JSON.stringify(commit),
   },
 });
