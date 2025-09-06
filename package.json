@@ -23,6 +23,7 @@
   "devDependencies": {
     "@preact/compat": "^18.3.1",
     "@preact/preset-vite": "^2.10.2",
+    "@types/node": "^24.3.1",
     "@types/react": "^19.1.12",
     "@types/react-dom": "^19.1.9",
     "preact": "^10.27.1",
