@@ -4,7 +4,7 @@
 # final output should be added to a distroless container only containing an HTTP
 # server and the static Vite output.
 
-FROM node:24.11.1-bookworm AS build
+FROM node:24.11.1-trixie AS build
 WORKDIR /app
 COPY ["package.json", "package-lock.json", "/app/"]
 RUN npm ci
@@ -12,12 +12,12 @@ COPY ["analysis.ts", "vite.build.config.mts", "/app/"]
 COPY ["src", "/app/src"]
 RUN npm run build
 
-FROM node:24.11.1-bookworm AS vite
+FROM node:24.11.1-trixie AS vite
 WORKDIR /app
 RUN npm install vite
 
 # Note that Distroless does not tag exact node versions, for replication we fix the hash
-FROM gcr.io/distroless/nodejs24-debian12:nonroot@sha256:f9d553b602abd9cd8790ffd1259229dd9915bd293402e88339e335465fec76ac AS final
+FROM gcr.io/distroless/nodejs24-debian13:nonroot@sha256:5bee7069294b1d497978cc13e42f0f205398e97b0313269fdd0bb1bda14e09be AS final
 ENV NODE_ENV=production
 COPY --from=build ["/app/dist", "/app/dist"]
 COPY --from=vite ["/app/node_modules", "/app/node_modules"]
