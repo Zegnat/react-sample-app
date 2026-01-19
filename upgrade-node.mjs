@@ -80,8 +80,13 @@ async function main() {
   const sizeMB = (largestLayer['size'] / 1024 / 1024).toFixed(1);
 
   console.log(`Layer digest: ${largestLayer['digest']} (${sizeMB} MB)`);
+  console.log(`Layer URL: https://${REGISTRY}/v2/${REPOSITORY}/blobs/${largestLayer['digest']}`);
 
-  const response = await fetch(`https://${REGISTRY}/v2/${REPOSITORY}/blobs/${largestLayer['digest']}`);
+  const abortController = new AbortController();
+  const response = await fetch(
+    `https://${REGISTRY}/v2/${REPOSITORY}/blobs/${largestLayer['digest']}`,
+    { signal: abortController.signal }
+  );
   if (!response.ok) {
     throw new Error(`Failed to fetch layer: ${response.status}`);
   }
@@ -121,6 +126,7 @@ async function main() {
     }
   } finally {
     reader.cancel();
+    abortController.abort();
   }
 
   if (!nodeVersion && versionBytes.length) {
