@@ -1,5 +1,7 @@
 {
   "exclude": ["dist", "src/dist"],
+  "include": ["upgrade-node.mjs"],
+  "compilerOptions": {"checkJs": true},
   "extends": [
     "@tsconfig/strictest/tsconfig.json",
     "@tsconfig/create-react-app/tsconfig.json"
