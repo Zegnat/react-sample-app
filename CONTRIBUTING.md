@@ -54,13 +54,21 @@ Use [npm-check-updates][] to check for updates and bump `package.json`, then
 install to regenerate the lockfile:
 
 ```sh
-npx npm-check-updates -u --cooldown 3d
+npx npm-check-updates -u --target minor --cooldown 3d
 npm install
 npm run check && npm run build
 ```
 
+The `--target minor` flag limits updates to minor and patch versions. Drop it
+when you are ready to take on major version bumps (and test thoroughly).
+
 The `--cooldown` flag skips versions published less than 3 days ago, matching
 the quarantine policy in `.npmrc`.
+
+**Note:** `@types/node` must stay on a major version that matches the Node.js
+version in `engines`. The project runs on the Node.js 24 LTS line (pinned for
+distroless container compatibility), so `@types/node` should remain on `24.x`
+until the project upgrades Node.js.
 
 ### GitHub Actions
 
