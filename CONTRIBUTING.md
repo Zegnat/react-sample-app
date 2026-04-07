@@ -63,7 +63,18 @@ The `--target minor` flag limits updates to minor and patch versions. Drop it
 when you are ready to take on major version bumps (and test thoroughly).
 
 The `--cooldown` flag skips versions published less than 3 days ago, matching
-the quarantine policy in `.npmrc`.
+the quarantine policy in `.npmrc`. When no `--cooldown` is specified, ncu
+applies the `min-release-age` from `.npmrc` automatically. To bypass the
+cooldown for urgent updates (e.g. a security patch), pass `--cooldown 0`.
+When you do, also pass `--min-release-age=0` to `npm install`, otherwise npm
+will refuse to install versions that are still within the `.npmrc` quarantine
+window:
+
+```sh
+npx npm-check-updates -u --target minor --cooldown 0
+npm install --min-release-age=0
+npm run check && npm run build
+```
 
 **Note:** `@types/node` must stay on a major version that matches the Node.js
 version in `engines`. The project runs on the Node.js 24 LTS line (pinned for
