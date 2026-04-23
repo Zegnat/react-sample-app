@@ -76,9 +76,40 @@ npm run build
 To view the distribution build in a browser after bundling, run:
 
 ```sh
-npm exec vite preview -- --config vite.build.config.mts
+npm run preview
 ```
+
+## Testing
+
+End-to-end tests use [Playwright][]. The same tests run against both the
+development build (React) and the production build (Preact) to catch
+regressions in either runtime.
+
+Because `ignore-scripts=true` is set in `.npmrc`, Playwright's browser
+binaries are not downloaded automatically. Install them once after
+`npm ci`:
+
+```sh
+npx playwright install chromium
+```
+
+Run all tests (both React and Preact):
+
+```sh
+npm run test:e2e
+```
+
+Or target a specific runtime:
+
+```sh
+npm run test:e2e:react   # React dev server only
+npm run test:e2e:preact  # Preact production build only
+```
+
+Note: the app simulates a slow API call (10 seconds), so each test run
+takes roughly 15 seconds.
 
 [@preact/compat]: https://www.npmjs.com/package/@preact/compat
 [fnm]: https://github.com/Schniz/fnm
+[Playwright]: https://playwright.dev/
 [vite-bundle-visualizer]: https://www.npmjs.com/package/vite-bundle-visualizer

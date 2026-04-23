@@ -43,6 +43,30 @@ mutable version tags. This prevents a compromised action or a rewritten tag
 from injecting code into our pipeline. The original version tag is kept as an
 inline comment for readability.
 
+## Testing
+
+End-to-end tests are run with [Playwright][]. Because `ignore-scripts=true`
+blocks Playwright's post-install browser download, you must install browsers
+explicitly after `npm ci`:
+
+```sh
+npx playwright install chromium
+```
+
+This only needs to be done once (or when upgrading `@playwright/test`).
+
+Run the full test suite:
+
+```sh
+npm run test:e2e
+```
+
+This starts both the Vite dev server (React, port 5173) and a production
+preview server (Preact, port 4173), then runs the same tests against each.
+Use `test:e2e:react` or `test:e2e:preact` to target a single runtime.
+
+[Playwright]: https://playwright.dev/
+
 ## Updating Dependencies
 
 Updates are done manually with the help of two tools. Both are run with `npx`

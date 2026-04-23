@@ -7,7 +7,11 @@
     "build": "vite build --config vite.build.config.mts",
     "check": "tsc --noEmit",
     "dev": "vite",
-    "style": "prettier --write . \"!analysis.ts\""
+    "preview": "vite preview --config vite.build.config.mts",
+    "style": "prettier --write . \"!analysis.ts\"",
+    "test:e2e": "playwright test",
+    "test:e2e:react": "playwright test --project=react",
+    "test:e2e:preact": "playwright test --project=preact"
   },
   "dependencies": {
     "@emotion/react": "^11.14.0",
@@ -21,6 +25,7 @@
     "vite": "^8.0.9"
   },
   "devDependencies": {
+    "@playwright/test": "1.59.1",
     "@preact/compat": "^18.3.2",
     "@preact/preset-vite": "^2.10.5",
     "@types/node": "^24.12.2",
