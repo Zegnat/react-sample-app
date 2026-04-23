@@ -3,7 +3,7 @@ import Container from "@mui/material/Container";
 import FormControl from "@mui/material/FormControl";
 import InputLabel from "@mui/material/InputLabel";
 import OutlinedInput from "@mui/material/OutlinedInput";
-import type { FormEventHandler } from "react";
+import type { FormEventHandler, KeyboardEvent } from "react";
 import { useId, useState } from "react";
 
 type FormProps = {
@@ -19,6 +19,13 @@ export const Form = ({
 }: FormProps) => {
   const inputId = useId();
   const [value, setValue] = useState("");
+
+  const handleKeyDown = (e: KeyboardEvent<HTMLTextAreaElement>) => {
+    if (e.key === "Enter" && (e.ctrlKey || e.metaKey)) {
+      e.preventDefault();
+      e.currentTarget.form?.requestSubmit();
+    }
+  };
 
   return (
     <Container
@@ -37,6 +44,7 @@ export const Form = ({
           rows={5}
           value={value}
           onChange={(e) => setValue(e.target.value)}
+          onKeyDown={handleKeyDown}
         />
       </FormControl>
       <Button
