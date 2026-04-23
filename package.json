@@ -12,13 +12,13 @@
   "dependencies": {
     "@emotion/react": "^11.14.0",
     "@emotion/styled": "^11.14.1",
-    "@mui/material": "^7.3.9",
+    "@mui/material": "^7.3.10",
     "@tsconfig/create-react-app": "^2.0.11",
     "@tsconfig/strictest": "^2.0.8",
     "@vitejs/plugin-react": "^6.0.1",
-    "react": "^19.2.4",
-    "react-dom": "^19.2.4",
-    "vite": "^8.0.6"
+    "react": "^19.2.5",
+    "react-dom": "^19.2.5",
+    "vite": "^8.0.9"
   },
   "devDependencies": {
     "@preact/compat": "^18.3.2",
@@ -27,11 +27,11 @@
     "@types/react": "^19.2.14",
     "@types/react-dom": "^19.2.3",
     "preact": "^10.29.1",
-    "prettier": "^3.8.1",
-    "typescript": "^6.0.2"
+    "prettier": "^3.8.3",
+    "typescript": "^6.0.3"
   },
   "engines": {
-    "node": "24.14.1",
+    "node": "24.15.0",
     "npm": ">=11.10.0"
   }
 }
