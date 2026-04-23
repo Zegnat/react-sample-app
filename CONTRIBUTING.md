@@ -16,6 +16,7 @@ All configuration lives in [`.npmrc`](.npmrc) and
 | `engine-strict` | `true` | Enforces the `engines.node` version from `package.json`. |
 | `package-lock` | `true` | Ensures the lockfile is always used and kept in sync. |
 | `save-exact` | `true` | Pins exact versions when adding new dependencies (no `^` or `~` ranges). |
+| `strict-peer-deps` | `true` | Fails on peer dependency conflicts instead of silently accepting mismatches. |
 | `min-release-age` | `3` | Refuses to install any package version published less than 3 days ago, giving the community time to detect and remove malicious releases. |
 
 If a dependency legitimately needs install scripts (e.g. a native addon),
