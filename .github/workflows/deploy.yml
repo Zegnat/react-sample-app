@@ -30,12 +30,6 @@ jobs:
         uses: actions/configure-pages@45bfe0192ca1faeb007ade9deae92b16b8254a0d # v6.0.0
       - name: Install dependencies
         run: npm ci --ignore-scripts
-      - name: License check
-        run: >-
-          npx license-checker
-          --production
-          --excludePackages 'work-sample-react-typescript@0.0.0'
-          --onlyAllow 'MIT;ISC;Apache-2.0;BSD-2-Clause;BSD-3-Clause;0BSD;CC0-1.0;Unlicense;CC-BY-4.0;MPL-2.0;BlueOak-1.0.0;Python-2.0'
       - name: Lint
         run: npm run lint
       - name: Type check
@@ -66,8 +60,14 @@ jobs:
           name: sbom
           path: sbom.cdx.json
           retention-days: 90
+      - name: Upload licenses
+        uses: actions/upload-artifact@bbbca2ddaa5d8feaa63e36b76fdaad77386f024f # v7.0.0
+        with:
+          name: licenses
+          path: dist/LICENSES.txt
+          retention-days: 90
       - name: Package artifact
-        run: tar --dereference --hard-dereference --directory ./dist -cvf "$RUNNER_TEMP/artifact.tar" .
+        run: tar --dereference --hard-dereference --directory ./dist --exclude=LICENSES.txt -cvf "$RUNNER_TEMP/artifact.tar" .
       - name: Upload artifact
         uses: actions/upload-artifact@bbbca2ddaa5d8feaa63e36b76fdaad77386f024f # v7.0.0
         with:
