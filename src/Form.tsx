@@ -3,13 +3,13 @@ import Container from "@mui/material/Container";
 import FormControl from "@mui/material/FormControl";
 import InputLabel from "@mui/material/InputLabel";
 import OutlinedInput from "@mui/material/OutlinedInput";
-import type { FormEventHandler, KeyboardEvent } from "react";
+import type { KeyboardEvent, SubmitEventHandler } from "react";
 import { useId, useState } from "react";
 
 type FormProps = {
   label?: string;
   button?: string;
-  onSubmit: FormEventHandler<HTMLFormElement>;
+  onSubmit: SubmitEventHandler<HTMLFormElement>;
 };
 
 export const Form = ({
@@ -43,7 +43,7 @@ export const Form = ({
           multiline
           rows={5}
           value={value}
-          onChange={(e) => setValue(e.target.value)}
+          onChange={(e) => { setValue(e.target.value); }}
           onKeyDown={handleKeyDown}
         />
       </FormControl>

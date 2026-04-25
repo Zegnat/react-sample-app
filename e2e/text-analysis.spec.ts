@@ -32,7 +32,7 @@ test.describe("Text Analysis", () => {
     await expect(textarea).not.toBeVisible();
 
     await expect(
-      page.getByText("Your text consists of 2 words 10 letters"),
+      page.getByText("Your text consists of 2 words and 10 letters"),
     ).toBeVisible();
   });
 
