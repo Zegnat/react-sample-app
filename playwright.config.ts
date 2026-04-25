@@ -23,16 +23,24 @@ export default defineConfig({
       use: { ...devices["Desktop Chrome"], baseURL: "http://localhost:4173" },
     },
   ],
-  webServer: [
-    {
-      command: "npm run dev",
-      url: "http://localhost:5173",
-      reuseExistingServer: !process.env["CI"],
-    },
-    {
-      command: "npm run build && npm run preview",
-      url: "http://localhost:4173",
-      reuseExistingServer: !process.env["CI"],
-    },
-  ],
+  webServer: process.env["CI"]
+    ? [
+        {
+          command: "npm run preview",
+          url: "http://localhost:4173",
+          reuseExistingServer: false,
+        },
+      ]
+    : [
+        {
+          command: "npm run dev",
+          url: "http://localhost:5173",
+          reuseExistingServer: true,
+        },
+        {
+          command: "npm run build && npm run preview",
+          url: "http://localhost:4173",
+          reuseExistingServer: true,
+        },
+      ],
 });
