@@ -1,4 +1,5 @@
 #!/usr/bin/env node
+/* global AbortController, AbortSignal, console, DecompressionStream, fetch, process, TextEncoder, URL */
 
 import { execFileSync } from "node:child_process";
 import { readFileSync, writeFileSync } from "node:fs";
@@ -35,7 +36,7 @@ async function fetchJson(url) {
   const response = await fetch(url, { signal: AbortSignal.timeout(30_000) });
   if (!response.ok) {
     throw new Error(
-      `HTTP ${response.status} from ${url}: ${response.statusText}`,
+      `HTTP ${String(response.status)} from ${url}: ${response.statusText}`,
     );
   }
   return response.json();
@@ -93,7 +94,9 @@ async function main() {
       ) {
         throw new Error("Invalid architecture manifest");
       }
-      return /** @type {Layer[]} */ (manifest["layers"]);
+      /** @type {Layer[]} */
+      const layers = manifest["layers"];
+      return layers;
     }),
   );
 
@@ -131,7 +134,7 @@ async function main() {
     },
   );
   if (!response.ok) {
-    throw new Error(`Failed to fetch layer: ${response.status}`);
+    throw new Error(`Failed to fetch layer: ${String(response.status)}`);
   }
   if (!response.body) {
     throw new Error("No response body");
@@ -147,9 +150,10 @@ async function main() {
   let nodeVersion = null;
 
   try {
+    // eslint-disable-next-line @typescript-eslint/no-unnecessary-condition
     while (true) {
       const { done, value } = await reader.read();
-      if (done || !value) break;
+      if (done || !value) break; // eslint-disable-line @typescript-eslint/no-unnecessary-condition
 
       for (const byte of value) {
         if (bytesSeen < VERSION_PREFIX.length) {
@@ -171,7 +175,7 @@ async function main() {
       if (nodeVersion) break;
     }
   } finally {
-    reader.cancel();
+    void reader.cancel();
     abortController.abort();
   }
 
@@ -209,7 +213,7 @@ async function main() {
   writeFileSync(dockerfilePath, updatedDockerFile);
 }
 
-main().catch((error) => {
-  console.error("Error:", error.message);
+main().catch((/** @type {unknown} */ error) => {
+  console.error("Error:", error instanceof Error ? error.message : error);
   process.exit(1);
 });
