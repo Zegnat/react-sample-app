@@ -1,5 +1,7 @@
 import { defineConfig, devices } from "@playwright/test";
 
+const basePath = process.env["BASE_PATH"] ?? "";
+
 export default defineConfig({
   testDir: "./e2e",
   fullyParallel: true,
@@ -20,14 +22,17 @@ export default defineConfig({
     },
     {
       name: "preact",
-      use: { ...devices["Desktop Chrome"], baseURL: "http://localhost:4173" },
+      use: {
+        ...devices["Desktop Chrome"],
+        baseURL: `http://localhost:4173${basePath}`,
+      },
     },
   ],
   webServer: process.env["CI"]
     ? [
         {
           command: "npm run preview",
-          url: "http://localhost:4173",
+          url: `http://localhost:4173${basePath}`,
           reuseExistingServer: false,
         },
       ]

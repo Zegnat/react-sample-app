@@ -48,6 +48,8 @@ jobs:
       - name: Install Playwright
         run: npx playwright install --with-deps chromium
       - name: Test production build
+        env:
+          BASE_PATH: ${{ steps.pages.outputs.base_path }}
         run: npx playwright test --project=preact
       - name: Upload Playwright report
         uses: actions/upload-artifact@bbbca2ddaa5d8feaa63e36b76fdaad77386f024f # v7.0.0
