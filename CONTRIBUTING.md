@@ -81,7 +81,7 @@ install to regenerate the lockfile:
 ```sh
 npx npm-check-updates -u --target minor --cooldown 3d
 npm install
-npm run check && npm run build
+npm run lint && npm run check && npm run build
 ```
 
 The `--target minor` flag limits updates to minor and patch versions. Drop it
@@ -98,12 +98,12 @@ window:
 ```sh
 npx npm-check-updates -u --target minor --cooldown 0
 npm install --min-release-age=0
-npm run check && npm run build
+npm run lint && npm run check && npm run build
 ```
 
 **Note:** `@types/node` must stay on a major version that matches the Node.js
 version in `engines`. The project runs on the Node.js 24 LTS line (pinned for
-distroless container compatibility), so `@types/node` should remain on `24.x`
+container compatibility), so `@types/node` should remain on `24.x`
 until the project upgrades Node.js.
 
 ### GitHub Actions
