@@ -106,6 +106,20 @@ version in `engines`. The project runs on the Node.js 24 LTS line (pinned for
 container compatibility), so `@types/node` should remain on `24.x`
 until the project upgrades Node.js.
 
+### Pinned `overrides`
+
+The `overrides` block in `package.json` keeps `@babel/plugin-transform-runtime`
+on the `^7.29.0` (Babel 7) line. `@vitejs/plugin-react` pulls an *optional*
+`@rolldown/plugin-babel` chain; without the override, npm greedily resolves
+that chain to `@babel/plugin-transform-runtime@8`, which requires
+`@babel/core@^8` and conflicts with the Babel 7 that `@preact/preset-vite`
+depends on. Because `strict-peer-deps` is enabled, the install then fails.
+`@rolldown/plugin-babel` itself supports Babel 7, so pinning the runtime plugin
+to `7.x` keeps the whole tree on a single Babel major.
+
+Remove this override once `@preact/preset-vite` ships a release compatible with
+`@babel/core@^8`; at that point the tree can converge on Babel 8 on its own.
+
 ### GitHub Actions
 
 Use [actions-up][] to update and SHA-pin actions in workflow files:
