@@ -3,7 +3,7 @@ WORKDIR /app
 RUN chown node:node /app
 USER node
 COPY [".npmrc", "package.json", "package-lock.json", "/app/"]
-RUN npm ci
+RUN npm ci --ignore-scripts
 COPY ["analysis.ts", "vite.build.config.mts", "/app/"]
 COPY ["src", "/app/src"]
 RUN npm run build

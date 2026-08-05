@@ -17,7 +17,7 @@ All configuration lives in [`.npmrc`](.npmrc) and
 | `package-lock` | `true` | Ensures the lockfile is always used and kept in sync. |
 | `save-exact` | `true` | Pins exact versions when adding new dependencies (no `^` or `~` ranges). |
 | `strict-peer-deps` | `true` | Fails on peer dependency conflicts instead of silently accepting mismatches. |
-| `min-release-age` | `3` | Refuses to install any package version published less than 3 days ago, giving the community time to detect and remove malicious releases. |
+| `min-release-age` | `7` | Refuses to install any package version published less than 7 days ago, giving the community time to detect and remove malicious releases. |
 
 If a dependency legitimately needs install scripts (e.g. a native addon),
 allow it explicitly after review:
@@ -122,7 +122,7 @@ Use [npm-check-updates][] to check for updates and bump `package.json`, then
 install to regenerate the lockfile:
 
 ```sh
-npx npm-check-updates -u --target minor --cooldown 3d
+npx npm-check-updates -u --target minor --cooldown 7d
 npm install
 npm run lint && npm run check && npm run build
 ```
@@ -130,7 +130,7 @@ npm run lint && npm run check && npm run build
 The `--target minor` flag limits updates to minor and patch versions. Drop it
 when you are ready to take on major version bumps (and test thoroughly).
 
-The `--cooldown` flag skips versions published less than 3 days ago, matching
+The `--cooldown` flag skips versions published less than 7 days ago, matching
 the quarantine policy in `.npmrc`. When no `--cooldown` is specified, ncu
 applies the `min-release-age` from `.npmrc` automatically. To bypass the
 cooldown for urgent updates (e.g. a security patch), pass `--cooldown 0`.
