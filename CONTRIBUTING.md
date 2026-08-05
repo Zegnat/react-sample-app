@@ -69,9 +69,52 @@ Use `test:e2e:react` or `test:e2e:preact` to target a single runtime.
 
 ## Updating Dependencies
 
-Updates are done manually with the help of two tools. Both are run with `npx`
-so they do not need to be installed as project dependencies. Both will prompt
-before making changes.
+Updates are done manually. The container base images (and, with them, the
+Node.js version) are refreshed with the bundled
+[`upgrade-images.mjs`](upgrade-images.mjs) script; npm packages and GitHub
+Actions are updated with `npx` tools (so they need not be installed as project
+dependencies), both of which prompt before making changes.
+
+### Base images
+
+The Dockerfile builds on two digest-pinned base images: `node:<version>-alpine`
+(build stage) and
+`ghcr.io/static-web-server/static-web-server:<version>-alpine` (final stage).
+Each is pinned by `@sha256:` digest so builds and deployments are reproducible. The Node image's version additionally drives `engines.node` in
+`package.json` (enforced by `engine-strict`, and read by CI via `setup-node`'s
+`node-version-file`) and the matching `@types/node` major.
+
+The [`upgrade-images.mjs`](upgrade-images.mjs) script keeps all of that current.
+For each image it resolves the rolling tag's current manifest digest, reads the
+concrete version from the image itself (Node's `NODE_VERSION` env; the
+static-web-server image's OCI version label), and rewrites the pinned `FROM`
+line. For the Node image it also updates `engines.node` and aligns `@types/node`
+to the matching major.
+
+```sh
+node ./upgrade-images.mjs
+```
+
+Unlike the `npx` tools below, it writes changes directly rather than prompting,
+so review the diff before committing. After a Node bump, sync your local Node.js
+to the new pin — for example with [fnm][], which reads `engines.node` from
+`package.json`:
+
+```sh
+fnm use --install-if-missing
+```
+
+Both images track a rolling tag, so reruns pick up newer releases automatically,
+and any jump — including a major one — shows up in the diff for review:
+
+- **Node** tracks `lts-alpine`, which spans LTS lines, so it advances to the
+  next LTS major on its own once Node promotes one (e.g. 24.x → 26.x). When it
+  does, the script also bumps `@types/node` to match — review and test
+  thoroughly.
+- **static-web-server** has no cross-major alpine tag, so it tracks the
+  major-scoped `2-alpine` and pins the concrete `<version>-alpine` it resolves
+  to. It stays on v2 until you deliberately bump the `tag` in
+  `upgrade-images.mjs`.
 
 ### npm Packages
 
@@ -129,4 +172,5 @@ npx actions-up --min-age 3
 ```
 
 [actions-up]: https://github.com/azat-io/actions-up
+[fnm]: https://github.com/Schniz/fnm
 [npm-check-updates]: https://github.com/raineorshine/npm-check-updates

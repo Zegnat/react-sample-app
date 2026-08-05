@@ -1,6 +1,6 @@
 {
   "exclude": ["dist", "src/dist"],
-  "include": ["src", "e2e", "upgrade-node.mjs"],
+  "include": ["src", "e2e", "upgrade-images.mjs"],
   "compilerOptions": {"checkJs": true, "types": ["node"]},
   "extends": [
     "@tsconfig/strictest/tsconfig.json",
