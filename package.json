@@ -46,7 +46,7 @@
     "@babel/plugin-transform-runtime": "^7.29.0"
   },
   "engines": {
-    "node": "24.15.0",
+    "node": "24.19.0",
     "npm": ">=11.10.0"
   }
 }
