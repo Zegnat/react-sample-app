@@ -8,6 +8,7 @@ permissions:
   contents: read
   pages: write
   id-token: write
+  attestations: write
 
 concurrency:
   group: pages
@@ -30,6 +31,10 @@ jobs:
         uses: actions/configure-pages@45bfe0192ca1faeb007ade9deae92b16b8254a0d # v6.0.0
       - name: Install dependencies
         run: npm ci --ignore-scripts
+      - name: Audit dependencies
+        run: npm audit
+      - name: Verify dependency signatures
+        run: npm audit signatures
       - name: Lint
         run: npm run lint
       - name: Type check
@@ -52,8 +57,6 @@ jobs:
           name: playwright-report
           path: playwright-report/
           retention-days: 30
-      - name: Generate SBOM
-        run: npm sbom --sbom-format cyclonedx --sbom-type application --omit dev > sbom.cdx.json
       - name: Upload SBOM
         uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
         with:
@@ -68,6 +71,12 @@ jobs:
           retention-days: 90
       - name: Package artifact
         run: tar --dereference --hard-dereference --directory ./dist --exclude=LICENSES.txt -cvf "$RUNNER_TEMP/artifact.tar" .
+      - name: Attest SBOM for the deployment artifact
+        uses: actions/attest@508db95dd578ae2727ebd6217d5ba78e4fbda05d # v4.2.1
+        with:
+          subject-name: github-pages-bundle
+          subject-path: ${{ runner.temp }}/artifact.tar
+          sbom-path: sbom.cdx.json
       - name: Upload artifact
         uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
         with:
