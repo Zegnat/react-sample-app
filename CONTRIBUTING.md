@@ -65,6 +65,24 @@ This starts both the Vite dev server (React, port 5173) and a production
 preview server (Preact, port 4173), then runs the same tests against each.
 Use `test:e2e:react` or `test:e2e:preact` to target a single runtime.
 
+To run the same suite against the real production container — the image the
+[`Dockerfile`](Dockerfile) builds, served by static-web-server — use:
+
+```sh
+npm run test:e2e:docker
+```
+
+This builds the image, runs it, points Playwright at the container, and tears
+it down afterwards ([`scripts/e2e-docker.sh`](scripts/e2e-docker.sh) +
+[`playwright.docker.config.mts`](playwright.docker.config.mts)). It confirms the
+in-container `npm ci` + build and that static-web-server serves the result —
+the one path the GitHub Pages build never exercises.
+
+CI runs these in parallel: a **checks** job (lint, type check, audit, signature
+verification) gates two downstream jobs that run at the same time — **pages**
+(build + Preact-preview e2e + SBOM/attestation + deploy) and **docker** (the
+`test:e2e:docker` run above).
+
 [Playwright]: https://playwright.dev/
 
 ## Updating Dependencies
