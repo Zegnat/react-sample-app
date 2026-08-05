@@ -13,7 +13,8 @@
     "style": "prettier --write . \"!analysis.ts\"",
     "test:e2e": "playwright test",
     "test:e2e:react": "playwright test --project=react",
-    "test:e2e:preact": "playwright test --project=preact"
+    "test:e2e:preact": "playwright test --project=preact",
+    "test:e2e:docker": "bash scripts/e2e-docker.sh"
   },
   "dependencies": {
     "@emotion/react": "11.14.0",
