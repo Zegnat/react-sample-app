@@ -80,8 +80,11 @@ the one path the GitHub Pages build never exercises.
 
 CI runs these in parallel: a **checks** job (lint, type check, audit, signature
 verification) gates two downstream jobs that run at the same time — **pages**
-(build + Preact-preview e2e + SBOM/attestation + deploy) and **docker** (the
-`test:e2e:docker` run above).
+(build + Preact-preview e2e + SBOM/attestation + deploy to Pages) and **docker**,
+which as discrete, individually-reported steps builds the image, starts the
+container, runs the e2e suite against it, stops it, and — only if all of that
+passes — publishes the image to the GitHub Container Registry
+(`ghcr.io/<owner>/react-sample-app`, tagged with the commit SHA and `latest`).
 
 [Playwright]: https://playwright.dev/
 

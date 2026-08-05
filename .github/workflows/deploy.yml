@@ -104,9 +104,12 @@ jobs:
         uses: actions/deploy-pages@cd2ce8fcbc39b97be8ca5fce6e763baed58fa128 # v5.0.0
 
   docker:
-    name: Build & test Docker image
+    name: Build, test & publish Docker image
     needs: checks
     runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      packages: write
     steps:
       - name: Checkout your repository using git
         uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
@@ -118,5 +121,26 @@ jobs:
         run: npm ci --ignore-scripts
       - name: Install Playwright
         run: npx playwright install --with-deps chromium
-      - name: Build image and run e2e against the container
-        run: npm run test:e2e:docker
+      - name: Build Docker image
+        run: docker build -t sws-e2e .
+      - name: Start container
+        run: docker run -d --rm --name sws-e2e -p 4173:80 sws-e2e
+      - name: Run e2e tests against the container
+        run: |
+          for _ in $(seq 1 60); do
+            curl -sf http://localhost:4173/ >/dev/null && break
+            sleep 1
+          done
+          npx playwright test --config=playwright.docker.config.mts
+      - name: Stop container
+        if: always()
+        run: docker rm -f sws-e2e
+      - name: Log in to the GitHub Container Registry
+        run: echo "${{ secrets.GITHUB_TOKEN }}" | docker login ghcr.io -u "${{ github.actor }}" --password-stdin
+      - name: Publish image to the GitHub Container Registry
+        run: |
+          image="ghcr.io/$(echo "${{ github.repository }}" | tr '[:upper:]' '[:lower:]')"
+          docker tag sws-e2e "$image:${{ github.sha }}"
+          docker tag sws-e2e "$image:latest"
+          docker push "$image:${{ github.sha }}"
+          docker push "$image:latest"
