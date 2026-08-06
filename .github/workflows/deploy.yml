@@ -147,8 +147,10 @@ jobs:
           key: playwright-${{ runner.os }}-${{ hashFiles('package-lock.json') }}
       - name: Install Playwright
         run: npx playwright install --with-deps chromium
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@bb05f3f5519dd87d3ba754cc423b652a5edd6d2c # v4.2.0
       - name: Build Docker image
-        run: docker build -t sws-e2e .
+        run: docker buildx build --load -t sws-e2e --cache-from type=gha --cache-to type=gha,mode=max .
       - name: Start container
         run: docker run -d --rm --name sws-e2e -p 4173:80 sws-e2e
       - name: Run e2e tests against the container
