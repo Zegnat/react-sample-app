@@ -1,3 +1,4 @@
+import { randomUUID } from "node:crypto";
 import { resolve } from "node:path";
 import { preact } from "@preact/preset-vite";
 import license from "rollup-plugin-license";
@@ -15,6 +16,7 @@ function cycloneDXSbom(dependencies) {
     {
       bomFormat: "CycloneDX",
       specVersion: "1.5",
+      serialNumber: `urn:uuid:${randomUUID()}`,
       version: 1,
       components: dependencies.map((dependency) => ({
         type: "library",
