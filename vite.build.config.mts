@@ -6,6 +6,31 @@ import { defineConfig } from "vite";
 const base = process.env["BASE_PATH"] ? { base: process.env["BASE_PATH"] } : {};
 const commit = process.env["COMMIT_HASH"] ?? "<unknown>";
 
+// Emit a CycloneDX SBOM from the packages rollup-plugin-license actually sees in
+// the bundle, so it reflects what ships (Preact, MUI, Emotion, …) rather than
+// the npm dependency tree — which lists the aliased-out React and build-only
+// tooling and hides the Preact that is actually bundled.
+function cycloneDXSbom(dependencies) {
+  return JSON.stringify(
+    {
+      bomFormat: "CycloneDX",
+      specVersion: "1.5",
+      version: 1,
+      components: dependencies.map((dependency) => ({
+        type: "library",
+        name: dependency.name,
+        version: dependency.version,
+        purl: `pkg:npm/${dependency.name.replace("@", "%40")}@${dependency.version}`,
+        ...(dependency.license
+          ? { licenses: [{ license: { name: dependency.license } }] }
+          : {}),
+      })),
+    },
+    null,
+    2,
+  );
+}
+
 export default defineConfig({
   root: "./src",
   ...base,
@@ -21,13 +46,19 @@ export default defineConfig({
       plugins: [
         license({
           thirdParty: {
-            output: resolve(__dirname, "dist", "LICENSES.txt"),
             includeSelf: true,
             allow: {
               test: "(MIT OR BSD-3-Clause OR 0BSD)",
               failOnUnlicensed: true,
               failOnViolation: true,
             },
+            output: [
+              resolve(__dirname, "dist", "LICENSES.txt"),
+              {
+                file: resolve(__dirname, "sbom.cdx.json"),
+                template: cycloneDXSbom,
+              },
+            ],
           },
         }),
       ],
