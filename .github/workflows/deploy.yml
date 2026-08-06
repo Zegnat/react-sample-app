@@ -47,9 +47,9 @@ jobs:
       url: ${{ steps.deployment.outputs.page_url }}
     permissions:
       contents: read
-      pages: write
-      id-token: write
-      attestations: write
+      pages: write # deploy the built site to GitHub Pages
+      id-token: write # OIDC token for the Pages deploy and the SBOM attestation
+      attestations: write # record the deployment-artifact SBOM attestation
     steps:
       - name: Checkout your repository using git
         id: checkout
@@ -125,9 +125,9 @@ jobs:
     timeout-minutes: 15
     permissions:
       contents: read
-      packages: write
-      id-token: write
-      attestations: write
+      packages: write # push the image to the GitHub Container Registry
+      id-token: write # OIDC token for the image attestations
+      attestations: write # record image provenance and the image SBOM
     steps:
       - name: Checkout your repository using git
         uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
@@ -170,13 +170,16 @@ jobs:
         run: echo "$GHCR_TOKEN" | docker login ghcr.io -u "$GHCR_USER" --password-stdin
       - name: Publish image to the GitHub Container Registry
         id: push
+        env:
+          REPO: ${{ github.repository }}
+          SHA: ${{ github.sha }}
         run: |
-          image="ghcr.io/$(echo "${{ github.repository }}" | tr '[:upper:]' '[:lower:]')"
-          docker tag sws-e2e "$image:${{ github.sha }}"
+          image="ghcr.io/$(echo "$REPO" | tr '[:upper:]' '[:lower:]')"
+          docker tag sws-e2e "$image:$SHA"
           docker tag sws-e2e "$image:latest"
-          docker push "$image:${{ github.sha }}"
+          docker push "$image:$SHA"
           docker push "$image:latest"
-          digest="$(docker inspect --format='{{index .RepoDigests 0}}' "$image:${{ github.sha }}" | cut -d@ -f2)"
+          digest="$(docker inspect --format='{{index .RepoDigests 0}}' "$image:$SHA" | cut -d@ -f2)"
           echo "image=$image" >> "$GITHUB_OUTPUT"
           echo "digest=$digest" >> "$GITHUB_OUTPUT"
       - name: Attest build provenance for the image
