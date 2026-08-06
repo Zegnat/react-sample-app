@@ -2,6 +2,22 @@ import { defineConfig, devices } from "@playwright/test";
 
 const basePath = process.env["BASE_PATH"] ?? "";
 
+// In CI each e2e leg starts exactly one server: the React leg (E2E_TARGET=react)
+// runs against the Vite dev server; everything else runs against the production
+// Preact preview. Locally, both servers start so `npm run test:e2e` can hit each.
+const ciWebServer =
+  process.env["E2E_TARGET"] === "react"
+    ? {
+        command: "npm run dev",
+        url: "http://localhost:5173",
+        reuseExistingServer: false,
+      }
+    : {
+        command: "npm run preview",
+        url: `http://localhost:4173${basePath}`,
+        reuseExistingServer: false,
+      };
+
 export default defineConfig({
   testDir: "./e2e",
   fullyParallel: true,
@@ -29,13 +45,7 @@ export default defineConfig({
     },
   ],
   webServer: process.env["CI"]
-    ? [
-        {
-          command: "npm run preview",
-          url: `http://localhost:4173${basePath}`,
-          reuseExistingServer: false,
-        },
-      ]
+    ? [ciWebServer]
     : [
         {
           command: "npm run dev",
