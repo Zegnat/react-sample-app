@@ -37,7 +37,7 @@ jobs:
 
   pages:
     name: Build & deploy to Pages
-    needs: checks
+    needs: react
     runs-on: ubuntu-latest
     timeout-minutes: 15
     environment:
@@ -67,6 +67,11 @@ jobs:
           COMMIT_HASH: ${{ steps.checkout.outputs.commit }}
           BASE_PATH: ${{ steps.pages.outputs.base_path }}
         run: npm run build
+      - name: Cache Playwright browsers
+        uses: actions/cache@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6.1.0
+        with:
+          path: ~/.cache/ms-playwright
+          key: playwright-${{ runner.os }}-${{ hashFiles('package-lock.json') }}
       - name: Install Playwright
         run: npx playwright install --with-deps chromium
       - name: Test production build (Preact preview)
@@ -112,7 +117,7 @@ jobs:
 
   docker:
     name: Build, test & publish Docker image
-    needs: checks
+    needs: react
     runs-on: ubuntu-latest
     timeout-minutes: 15
     permissions:
@@ -130,6 +135,11 @@ jobs:
           cache: npm
       - name: Install dependencies
         run: npm ci --ignore-scripts
+      - name: Cache Playwright browsers
+        uses: actions/cache@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6.1.0
+        with:
+          path: ~/.cache/ms-playwright
+          key: playwright-${{ runner.os }}-${{ hashFiles('package-lock.json') }}
       - name: Install Playwright
         run: npx playwright install --with-deps chromium
       - name: Build Docker image
@@ -181,3 +191,30 @@ jobs:
           subject-digest: ${{ steps.push.outputs.digest }}
           sbom-path: image.sbom.cdx.json
           push-to-registry: true
+
+  react:
+    name: Test the React runtime (parity)
+    needs: checks
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - name: Checkout your repository using git
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+      - name: Setup Node.js
+        uses: actions/setup-node@820762786026740c76f36085b0efc47a31fe5020 # v7.0.0
+        with:
+          node-version-file: package.json
+          cache: npm
+      - name: Install dependencies
+        run: npm ci --ignore-scripts
+      - name: Cache Playwright browsers
+        uses: actions/cache@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6.1.0
+        with:
+          path: ~/.cache/ms-playwright
+          key: playwright-${{ runner.os }}-${{ hashFiles('package-lock.json') }}
+      - name: Install Playwright
+        run: npx playwright install --with-deps chromium
+      - name: Test the React runtime against the Vite dev server
+        env:
+          E2E_TARGET: react
+        run: npx playwright test --project=react
