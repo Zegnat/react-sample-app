@@ -9,12 +9,13 @@ permissions:
 
 concurrency:
   group: pages
-  cancel-in-progress: true
+  cancel-in-progress: false
 
 jobs:
   checks:
     name: Static checks
     runs-on: ubuntu-latest
+    timeout-minutes: 15
     steps:
       - name: Checkout your repository using git
         uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
@@ -22,6 +23,7 @@ jobs:
         uses: actions/setup-node@820762786026740c76f36085b0efc47a31fe5020 # v7.0.0
         with:
           node-version-file: package.json
+          cache: npm
       - name: Install dependencies
         run: npm ci --ignore-scripts
       - name: Audit dependencies
@@ -37,6 +39,10 @@ jobs:
     name: Build & deploy to Pages
     needs: checks
     runs-on: ubuntu-latest
+    timeout-minutes: 15
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
     permissions:
       contents: read
       pages: write
@@ -50,6 +56,7 @@ jobs:
         uses: actions/setup-node@820762786026740c76f36085b0efc47a31fe5020 # v7.0.0
         with:
           node-version-file: package.json
+          cache: npm
       - name: Setup Pages
         id: pages
         uses: actions/configure-pages@45bfe0192ca1faeb007ade9deae92b16b8254a0d # v6.0.0
@@ -106,6 +113,7 @@ jobs:
     name: Build, test & publish Docker image
     needs: checks
     runs-on: ubuntu-latest
+    timeout-minutes: 15
     permissions:
       contents: read
       packages: write
@@ -116,6 +124,7 @@ jobs:
         uses: actions/setup-node@820762786026740c76f36085b0efc47a31fe5020 # v7.0.0
         with:
           node-version-file: package.json
+          cache: npm
       - name: Install dependencies
         run: npm ci --ignore-scripts
       - name: Install Playwright
@@ -126,10 +135,12 @@ jobs:
         run: docker run -d --rm --name sws-e2e -p 4173:80 sws-e2e
       - name: Run e2e tests against the container
         run: |
+          ok=false
           for _ in $(seq 1 60); do
-            curl -sf http://localhost:4173/ >/dev/null && break
+            curl -sf http://localhost:4173/ >/dev/null && { ok=true; break; }
             sleep 1
           done
+          [ "$ok" = true ] || { echo "container never became ready"; docker logs sws-e2e; exit 1; }
           npx playwright test --config=playwright.docker.config.mts
       - name: Stop container
         if: always()
