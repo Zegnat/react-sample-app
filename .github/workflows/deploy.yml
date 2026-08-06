@@ -118,6 +118,8 @@ jobs:
     permissions:
       contents: read
       packages: write
+      id-token: write
+      attestations: write
     steps:
       - name: Checkout your repository using git
         uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
@@ -149,9 +151,33 @@ jobs:
       - name: Log in to the GitHub Container Registry
         run: echo "${{ secrets.GITHUB_TOKEN }}" | docker login ghcr.io -u "${{ github.actor }}" --password-stdin
       - name: Publish image to the GitHub Container Registry
+        id: push
         run: |
           image="ghcr.io/$(echo "${{ github.repository }}" | tr '[:upper:]' '[:lower:]')"
           docker tag sws-e2e "$image:${{ github.sha }}"
           docker tag sws-e2e "$image:latest"
           docker push "$image:${{ github.sha }}"
           docker push "$image:latest"
+          digest="$(docker inspect --format='{{index .RepoDigests 0}}' "$image:${{ github.sha }}" | cut -d@ -f2)"
+          echo "image=$image" >> "$GITHUB_OUTPUT"
+          echo "digest=$digest" >> "$GITHUB_OUTPUT"
+      - name: Attest build provenance for the image
+        uses: actions/attest-build-provenance@0f67c3f4856b2e3261c31976d6725780e5e4c373 # v4.1.1
+        with:
+          subject-name: ${{ steps.push.outputs.image }}
+          subject-digest: ${{ steps.push.outputs.digest }}
+          push-to-registry: true
+      - name: Generate image SBOM (OS layer)
+        uses: anchore/sbom-action@e22c389904149dbc22b58101806040fa8d37a610 # v0.24.0
+        with:
+          image: sws-e2e
+          format: cyclonedx-json
+          output-file: image.sbom.cdx.json
+          upload-artifact: false
+      - name: Attest the image SBOM
+        uses: actions/attest@508db95dd578ae2727ebd6217d5ba78e4fbda05d # v4.2.1
+        with:
+          subject-name: ${{ steps.push.outputs.image }}
+          subject-digest: ${{ steps.push.outputs.digest }}
+          sbom-path: image.sbom.cdx.json
+          push-to-registry: true
