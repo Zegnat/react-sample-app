@@ -37,7 +37,7 @@ jobs:
 
   pages:
     name: Build & deploy to Pages
-    needs: checks
+    needs: react
     runs-on: ubuntu-latest
     timeout-minutes: 15
     permissions:
@@ -64,6 +64,11 @@ jobs:
           COMMIT_HASH: ${{ steps.checkout.outputs.commit }}
           BASE_PATH: ${{ steps.pages.outputs.base_path }}
         run: npm run build
+      - name: Cache Playwright browsers
+        uses: actions/cache@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6.1.0
+        with:
+          path: ~/.cache/ms-playwright
+          key: playwright-${{ runner.os }}-${{ hashFiles('package-lock.json') }}
       - name: Install Playwright
         run: npx playwright install --with-deps chromium
       - name: Test production build (Preact preview)
@@ -108,7 +113,7 @@ jobs:
 
   docker:
     name: Build, test & publish Docker image
-    needs: checks
+    needs: react
     runs-on: ubuntu-latest
     timeout-minutes: 15
     permissions:
@@ -126,6 +131,11 @@ jobs:
           cache: npm
       - name: Install dependencies
         run: npm ci --ignore-scripts
+      - name: Cache Playwright browsers
+        uses: actions/cache@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6.1.0
+        with:
+          path: ~/.cache/ms-playwright
+          key: playwright-${{ runner.os }}-${{ hashFiles('package-lock.json') }}
       - name: Install Playwright
         run: npx playwright install --with-deps chromium
       - name: Build Docker image
@@ -193,6 +203,11 @@ jobs:
           cache: npm
       - name: Install dependencies
         run: npm ci --ignore-scripts
+      - name: Cache Playwright browsers
+        uses: actions/cache@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6.1.0
+        with:
+          path: ~/.cache/ms-playwright
+          key: playwright-${{ runner.os }}-${{ hashFiles('package-lock.json') }}
       - name: Install Playwright
         run: npx playwright install --with-deps chromium
       - name: Test the React runtime against the Vite dev server
