@@ -37,174 +37,6 @@ jobs:
       - name: Type check
         run: npm run check
 
-  pages:
-    name: Build & deploy to Pages
-    needs: react
-    runs-on: ubuntu-latest
-    timeout-minutes: 15
-    environment:
-      name: github-pages
-      url: ${{ steps.deployment.outputs.page_url }}
-    permissions:
-      contents: read
-      pages: write # deploy the built site to GitHub Pages
-      id-token: write # OIDC token for the Pages deploy and the SBOM attestation
-      attestations: write # record the deployment-artifact SBOM attestation
-    steps:
-      - name: Checkout your repository using git
-        id: checkout
-        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
-        with:
-          persist-credentials: false
-      - name: Setup Node.js
-        uses: actions/setup-node@820762786026740c76f36085b0efc47a31fe5020 # v7.0.0
-        with:
-          node-version-file: package.json
-          cache: npm
-      - name: Setup Pages
-        id: pages
-        uses: actions/configure-pages@45bfe0192ca1faeb007ade9deae92b16b8254a0d # v6.0.0
-      - name: Install dependencies
-        run: npm ci --ignore-scripts
-      - name: Build
-        env:
-          COMMIT_HASH: ${{ steps.checkout.outputs.commit }}
-          BASE_PATH: ${{ steps.pages.outputs.base_path }}
-        run: npm run build
-      - name: Cache Playwright browsers
-        uses: actions/cache@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6.1.0
-        with:
-          path: ~/.cache/ms-playwright
-          key: playwright-${{ runner.os }}-${{ hashFiles('package-lock.json') }}
-      - name: Install Playwright
-        run: npx playwright install --with-deps chromium
-      - name: Test production build (Preact preview)
-        env:
-          BASE_PATH: ${{ steps.pages.outputs.base_path }}
-        run: npx playwright test --project=preact
-      - name: Upload Playwright report
-        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
-        if: ${{ !cancelled() }}
-        with:
-          name: playwright-report
-          path: playwright-report/
-          retention-days: 30
-      - name: Upload SBOM
-        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
-        with:
-          name: sbom
-          path: sbom.cdx.json
-          retention-days: 90
-      - name: Upload licenses
-        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
-        with:
-          name: licenses
-          path: dist/LICENSES.txt
-          retention-days: 90
-      - name: Package artifact
-        run: tar --dereference --hard-dereference --directory ./dist --exclude=LICENSES.txt -cvf "$RUNNER_TEMP/artifact.tar" .
-      - name: Attest SBOM for the deployment artifact
-        uses: actions/attest@508db95dd578ae2727ebd6217d5ba78e4fbda05d # v4.2.1
-        with:
-          subject-path: ${{ runner.temp }}/artifact.tar
-          sbom-path: sbom.cdx.json
-      - name: Upload artifact
-        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
-        with:
-          name: github-pages
-          path: ${{ runner.temp }}/artifact.tar
-          retention-days: 1
-      - name: Deploy to GitHub Pages
-        id: deployment
-        uses: actions/deploy-pages@cd2ce8fcbc39b97be8ca5fce6e763baed58fa128 # v5.0.0
-
-  docker:
-    name: Build, test & publish Docker image
-    needs: react
-    runs-on: ubuntu-latest
-    timeout-minutes: 15
-    permissions:
-      contents: read
-      packages: write # push the image to the GitHub Container Registry
-      id-token: write # OIDC token for the image attestations
-      attestations: write # record image provenance and the image SBOM
-    steps:
-      - name: Checkout your repository using git
-        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
-        with:
-          persist-credentials: false
-      - name: Setup Node.js
-        uses: actions/setup-node@820762786026740c76f36085b0efc47a31fe5020 # v7.0.0
-        with:
-          node-version-file: package.json
-          cache: npm
-      - name: Install dependencies
-        run: npm ci --ignore-scripts
-      - name: Cache Playwright browsers
-        uses: actions/cache@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6.1.0
-        with:
-          path: ~/.cache/ms-playwright
-          key: playwright-${{ runner.os }}-${{ hashFiles('package-lock.json') }}
-      - name: Install Playwright
-        run: npx playwright install --with-deps chromium
-      - name: Set up Docker Buildx
-        uses: docker/setup-buildx-action@bb05f3f5519dd87d3ba754cc423b652a5edd6d2c # v4.2.0
-      - name: Build Docker image
-        run: docker buildx build --load -t sws-e2e --cache-from type=gha --cache-to type=gha,mode=max .
-      - name: Start container
-        run: docker run -d --rm --name sws-e2e -p 4173:80 sws-e2e
-      - name: Run e2e tests against the container
-        run: |
-          ok=false
-          for _ in $(seq 1 60); do
-            curl -sf http://localhost:4173/ >/dev/null && { ok=true; break; }
-            sleep 1
-          done
-          [ "$ok" = true ] || { echo "container never became ready"; docker logs sws-e2e; exit 1; }
-          npx playwright test --config=playwright.docker.config.mts
-      - name: Stop container
-        if: always()
-        run: docker rm -f sws-e2e
-      - name: Log in to the GitHub Container Registry
-        env:
-          GHCR_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-          GHCR_USER: ${{ github.actor }}
-        run: echo "$GHCR_TOKEN" | docker login ghcr.io -u "$GHCR_USER" --password-stdin
-      - name: Publish image to the GitHub Container Registry
-        id: push
-        env:
-          REPO: ${{ github.repository }}
-          SHA: ${{ github.sha }}
-        run: |
-          image="ghcr.io/$(echo "$REPO" | tr '[:upper:]' '[:lower:]')"
-          docker tag sws-e2e "$image:$SHA"
-          docker tag sws-e2e "$image:latest"
-          docker push "$image:$SHA"
-          docker push "$image:latest"
-          digest="$(docker inspect --format='{{index .RepoDigests 0}}' "$image:$SHA" | cut -d@ -f2)"
-          echo "image=$image" >> "$GITHUB_OUTPUT"
-          echo "digest=$digest" >> "$GITHUB_OUTPUT"
-      - name: Attest build provenance for the image
-        uses: actions/attest-build-provenance@0f67c3f4856b2e3261c31976d6725780e5e4c373 # v4.1.1
-        with:
-          subject-name: ${{ steps.push.outputs.image }}
-          subject-digest: ${{ steps.push.outputs.digest }}
-          push-to-registry: true
-      - name: Generate image SBOM (OS layer)
-        uses: anchore/sbom-action@e22c389904149dbc22b58101806040fa8d37a610 # v0.24.0
-        with:
-          image: sws-e2e
-          format: cyclonedx-json
-          output-file: image.sbom.cdx.json
-          upload-artifact: false
-      - name: Attest the image SBOM
-        uses: actions/attest@508db95dd578ae2727ebd6217d5ba78e4fbda05d # v4.2.1
-        with:
-          subject-name: ${{ steps.push.outputs.image }}
-          subject-digest: ${{ steps.push.outputs.digest }}
-          sbom-path: image.sbom.cdx.json
-          push-to-registry: true
-
   react:
     name: Test the React runtime (parity)
     needs: checks
@@ -233,3 +65,176 @@ jobs:
         env:
           E2E_TARGET: react
         run: npx playwright test --project=react
+
+  build:
+    name: Build the production bundle
+    needs: checks
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    permissions:
+      contents: read
+      id-token: write # OIDC token for the bundle SBOM attestation
+      attestations: write # record the deployment-artifact SBOM attestation
+    steps:
+      - name: Checkout your repository using git
+        id: checkout
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+      - name: Setup Node.js
+        uses: actions/setup-node@820762786026740c76f36085b0efc47a31fe5020 # v7.0.0
+        with:
+          node-version-file: package.json
+          cache: npm
+      - name: Install dependencies
+        run: npm ci --ignore-scripts
+      - name: Build
+        env:
+          COMMIT_HASH: ${{ steps.checkout.outputs.commit }}
+        run: npm run build
+      - name: Cache Playwright browsers
+        uses: actions/cache@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6.1.0
+        with:
+          path: ~/.cache/ms-playwright
+          key: playwright-${{ runner.os }}-${{ hashFiles('package-lock.json') }}
+      - name: Install Playwright
+        run: npx playwright install --with-deps chromium
+      - name: Test production build (Preact preview)
+        run: npx playwright test --project=preact
+      - name: Upload Playwright report
+        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
+        if: ${{ !cancelled() }}
+        with:
+          name: playwright-report
+          path: playwright-report/
+          retention-days: 30
+      - name: Upload SBOM
+        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
+        with:
+          name: sbom
+          path: sbom.cdx.json
+          retention-days: 90
+      - name: Upload licenses
+        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
+        with:
+          name: licenses
+          path: dist/LICENSES.txt
+          retention-days: 90
+      - name: Package Pages artifact
+        run: tar --dereference --hard-dereference --directory ./dist --exclude=LICENSES.txt -cvf "$RUNNER_TEMP/artifact.tar" .
+      - name: Attest SBOM for the deployment artifact
+        uses: actions/attest@508db95dd578ae2727ebd6217d5ba78e4fbda05d # v4.2.1
+        with:
+          subject-path: ${{ runner.temp }}/artifact.tar
+          sbom-path: sbom.cdx.json
+      - name: Upload Pages artifact
+        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
+        with:
+          name: github-pages
+          path: ${{ runner.temp }}/artifact.tar
+          retention-days: 1
+      - name: Upload dist for the Docker image
+        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
+        with:
+          name: dist
+          path: dist
+          retention-days: 1
+
+  pages:
+    name: Deploy to Pages
+    needs: [react, build]
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    permissions:
+      contents: read
+      pages: write # deploy the built site to GitHub Pages
+      id-token: write # OIDC token for the Pages deploy
+    steps:
+      - name: Setup Pages
+        uses: actions/configure-pages@45bfe0192ca1faeb007ade9deae92b16b8254a0d # v6.0.0
+      - name: Deploy to GitHub Pages
+        id: deployment
+        uses: actions/deploy-pages@cd2ce8fcbc39b97be8ca5fce6e763baed58fa128 # v5.0.0
+
+  docker:
+    name: Build, test & publish Docker image
+    needs: [react, build]
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    permissions:
+      contents: read
+      packages: write # push the image to the GitHub Container Registry
+      id-token: write # OIDC token for the image attestations
+      attestations: write # record image provenance and the image SBOM
+    steps:
+      - name: Checkout your repository using git
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+      - name: Download the pre-built dist
+        uses: actions/download-artifact@37930b1c2abaa49bbe596cd826c3c89aef350131 # v7.0.0
+        with:
+          name: dist
+          path: dist
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@bb05f3f5519dd87d3ba754cc423b652a5edd6d2c # v4.2.0
+      - name: Build Docker image
+        run: docker buildx build --load -t sws-ci -f Dockerfile.ci --cache-from type=gha --cache-to type=gha,mode=max .
+      - name: Start container
+        run: docker run -d --rm --name sws-ci -p 4173:80 sws-ci
+      - name: Smoke test the container
+        run: |
+          ok=false
+          for _ in $(seq 1 60); do
+            curl -sf http://localhost:4173/ >/dev/null && { ok=true; break; }
+            sleep 1
+          done
+          [ "$ok" = true ] || { echo "container never became ready"; docker logs sws-ci; exit 1; }
+          asset="$(grep -oE 'src="\./assets/[^"]*"' dist/index.html | sed 's/src="\.\///;s/"//')"
+          [ -n "$asset" ] || { echo "no hashed asset found in dist/index.html"; exit 1; }
+          curl -sf "http://localhost:4173/$asset" >/dev/null || { echo "asset $asset not served at root"; docker logs sws-ci; exit 1; }
+      - name: Stop container
+        if: always()
+        run: docker rm -f sws-ci
+      - name: Log in to the GitHub Container Registry
+        env:
+          GHCR_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          GHCR_USER: ${{ github.actor }}
+        run: echo "$GHCR_TOKEN" | docker login ghcr.io -u "$GHCR_USER" --password-stdin
+      - name: Publish image to the GitHub Container Registry
+        id: push
+        env:
+          REPO: ${{ github.repository }}
+          SHA: ${{ github.sha }}
+        run: |
+          image="ghcr.io/$(echo "$REPO" | tr '[:upper:]' '[:lower:]')"
+          docker tag sws-ci "$image:$SHA"
+          docker tag sws-ci "$image:latest"
+          docker push "$image:$SHA"
+          docker push "$image:latest"
+          digest="$(docker inspect --format='{{index .RepoDigests 0}}' "$image:$SHA" | cut -d@ -f2)"
+          echo "image=$image" >> "$GITHUB_OUTPUT"
+          echo "digest=$digest" >> "$GITHUB_OUTPUT"
+      - name: Attest build provenance for the image
+        uses: actions/attest-build-provenance@0f67c3f4856b2e3261c31976d6725780e5e4c373 # v4.1.1
+        with:
+          subject-name: ${{ steps.push.outputs.image }}
+          subject-digest: ${{ steps.push.outputs.digest }}
+          push-to-registry: true
+      - name: Generate image SBOM (OS layer)
+        uses: anchore/sbom-action@e22c389904149dbc22b58101806040fa8d37a610 # v0.24.0
+        with:
+          image: sws-ci
+          format: cyclonedx-json
+          output-file: image.sbom.cdx.json
+          upload-artifact: false
+      - name: Attest the image SBOM
+        uses: actions/attest@508db95dd578ae2727ebd6217d5ba78e4fbda05d # v4.2.1
+        with:
+          subject-name: ${{ steps.push.outputs.image }}
+          subject-digest: ${{ steps.push.outputs.digest }}
+          sbom-path: image.sbom.cdx.json
+          push-to-registry: true
