@@ -4,10 +4,12 @@
 import { execFileSync } from "node:child_process";
 import { readFileSync, writeFileSync } from "node:fs";
 
-// Re-pins the digest of every container base image the Dockerfile uses. For
-// each image it resolves the current manifest digest of a rolling tag, reads a
-// human-readable version from the image itself, and rewrites the pinned `FROM`
-// line. Node additionally drives engines.node and @types/node.
+// Re-pins the digest of every container base image the project's Dockerfiles
+// use. For each image it resolves the current manifest digest of a rolling tag,
+// reads a human-readable version from the image itself, and rewrites the pinned
+// `FROM` line wherever it appears — the full `Dockerfile` (build + serve) and the
+// CI-only `Dockerfile.ci` (serve a pre-built dist) both pin static-web-server, so
+// both are kept in sync. Node additionally drives engines.node and @types/node.
 //
 // Rolling tags mean reruns pick up patch/minor releases within the current
 // major on their own; a major jump shows up in the diff for a human to review.
@@ -253,8 +255,11 @@ function syncNodePackageJson(nodeVersion) {
  * @returns {Promise<void>}
  */
 async function main() {
-  const dockerfilePath = new URL("./Dockerfile", import.meta.url);
-  let dockerfile = readFileSync(dockerfilePath, "utf8");
+  const dockerfiles = ["Dockerfile", "Dockerfile.ci"].map((name) => ({
+    name,
+    url: new URL(`./${name}`, import.meta.url),
+    text: readFileSync(new URL(`./${name}`, import.meta.url), "utf8"),
+  }));
 
   for (const image of IMAGES) {
     console.log(`Resolving ${image.name} (${image.tag}) from the registry...`);
@@ -265,10 +270,18 @@ async function main() {
     const pinned = image.replacement
       .replace("{version}", version)
       .replace("{digest}", digest);
-    if (dockerfile.match(image.pattern) === null) {
-      console.warn(`  warning: no ${image.name} reference found in Dockerfile`);
-    } else {
-      dockerfile = dockerfile.replace(image.pattern, pinned);
+
+    let matches = 0;
+    for (const dockerfile of dockerfiles) {
+      if (dockerfile.text.match(image.pattern) !== null) {
+        dockerfile.text = dockerfile.text.replace(image.pattern, pinned);
+        matches += 1;
+      }
+    }
+    if (matches === 0) {
+      console.warn(
+        `  warning: no ${image.name} reference found in any Dockerfile`,
+      );
     }
 
     if (image.syncNode) {
@@ -276,7 +289,9 @@ async function main() {
     }
   }
 
-  writeFileSync(dockerfilePath, dockerfile);
+  for (const dockerfile of dockerfiles) {
+    writeFileSync(dockerfile.url, dockerfile.text);
+  }
 }
 
 main().catch((/** @type {unknown} */ error) => {
