@@ -23,10 +23,10 @@ export default defineConfig({
   forbidOnly: !!process.env["CI"],
   retries: process.env["CI"] ? 2 : 0,
   // Each test runs in its own isolated browser context against a static SPA with no
-  // shared server state, so the specs parallelize safely. The CI runner is 4-vCPU
-  // (public-repo ubuntu-latest); 4 workers shortens the critical path to ~2 tests
-  // and roughly halves the suite. retries: 2 still covers transient flakiness.
-  workers: process.env["CI"] ? 4 : undefined,
+  // shared server state, so the specs parallelize safely. The CI runner is 2-vCPU,
+  // so 2 workers is the sweet spot (~16-22% faster than 1); measured 4 workers
+  // oversubscribe and regress (16.0s vs 14.1s at 2). retries: 2 covers flakiness.
+  workers: process.env["CI"] ? 2 : undefined,
   reporter: "html",
   expect: {
     timeout: 15_000,
