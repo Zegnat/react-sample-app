@@ -23,9 +23,10 @@ export default defineConfig({
   forbidOnly: !!process.env["CI"],
   retries: process.env["CI"] ? 2 : 0,
   // Each test runs in its own isolated browser context against a static SPA with no
-  // shared server state, so the specs parallelize safely; 2 workers roughly halves
-  // the suite on the CI runner, and retries: 2 still covers transient flakiness.
-  workers: process.env["CI"] ? 2 : undefined,
+  // shared server state, so the specs parallelize safely. The CI runner is 4-vCPU
+  // (public-repo ubuntu-latest); 4 workers shortens the critical path to ~2 tests
+  // and roughly halves the suite. retries: 2 still covers transient flakiness.
+  workers: process.env["CI"] ? 4 : undefined,
   reporter: "html",
   expect: {
     timeout: 15_000,
