@@ -60,7 +60,10 @@ jobs:
           path: ~/.cache/ms-playwright
           key: playwright-${{ runner.os }}-${{ hashFiles('package-lock.json') }}
       - name: Install Playwright
-        run: npx playwright install --with-deps chromium
+        # No --with-deps: ubuntu-latest already ships every shared library headless
+        # Chromium needs (libnss3, libgbm1, libatk*, libasound2, …); --with-deps only
+        # adds CJK/Cyrillic fonts (~21 MB, ~11s) these Latin-text DOM tests never use.
+        run: npx playwright install chromium
       - name: Test the React runtime against the Vite dev server
         env:
           E2E_TARGET: react
@@ -98,7 +101,10 @@ jobs:
           path: ~/.cache/ms-playwright
           key: playwright-${{ runner.os }}-${{ hashFiles('package-lock.json') }}
       - name: Install Playwright
-        run: npx playwright install --with-deps chromium
+        # No --with-deps: ubuntu-latest already ships every shared library headless
+        # Chromium needs (libnss3, libgbm1, libatk*, libasound2, …); --with-deps only
+        # adds CJK/Cyrillic fonts (~21 MB, ~11s) these Latin-text DOM tests never use.
+        run: npx playwright install chromium
       - name: Test production build (Preact preview)
         run: npx playwright test --project=preact
       - name: Upload Playwright report
