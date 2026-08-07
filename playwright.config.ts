@@ -22,7 +22,11 @@ export default defineConfig({
   fullyParallel: true,
   forbidOnly: !!process.env["CI"],
   retries: process.env["CI"] ? 2 : 0,
-  workers: process.env["CI"] ? 1 : undefined,
+  // Each test runs in its own isolated browser context against a static SPA with no
+  // shared server state, so the specs parallelize safely. The CI runner is 2-vCPU,
+  // so 2 workers is the sweet spot (~16-22% faster than 1); measured 4 workers
+  // oversubscribe and regress (16.0s vs 14.1s at 2). retries: 2 covers flakiness.
+  workers: process.env["CI"] ? 2 : undefined,
   reporter: "html",
   expect: {
     timeout: 15_000,
