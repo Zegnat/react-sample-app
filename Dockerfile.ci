@@ -1,0 +1,8 @@
+# syntax=docker/dockerfile:1
+# CI-only image: static-web-server serving a pre-built `dist/`. CI builds the
+# Preact production bundle once (in the `build` job) and copies it in here, so
+# this image needs no Node toolchain and no `npm ci`. The full-build local image
+# lives in `Dockerfile` (used by `npm run test:e2e:docker`); both are re-pinned
+# by `upgrade-images.mjs`.
+FROM ghcr.io/static-web-server/static-web-server:2.44.0-alpine@sha256:c6704bc8f1fe05378d91c3288495ce2e0131cf31cf8956f117cb1c7d83c49c31 AS final
+COPY --chown=sws:sws ["dist", "/home/sws/public"]

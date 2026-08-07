@@ -4,7 +4,6 @@ import { preact } from "@preact/preset-vite";
 import license from "rollup-plugin-license";
 import { defineConfig } from "vite";
 
-const base = process.env["BASE_PATH"] ? { base: process.env["BASE_PATH"] } : {};
 const commit = process.env["COMMIT_HASH"] ?? "<unknown>";
 
 // Emit a CycloneDX SBOM from the packages rollup-plugin-license actually sees in
@@ -35,7 +34,9 @@ function cycloneDXSbom(dependencies) {
 
 export default defineConfig({
   root: "./src",
-  ...base,
+  // Relative asset URLs so one build serves unchanged at any mount point: the
+  // GitHub Pages project subpath (/react-sample-app/) and the container root (/).
+  base: "./",
   plugins: [preact()],
   // Inspired by https://www.reddit.com/r/reactjs/comments/10o661t/comment/j6i7rzv/
   resolve: {

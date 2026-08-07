@@ -65,8 +65,9 @@ This starts both the Vite dev server (React, port 5173) and a production
 preview server (Preact, port 4173), then runs the same tests against each.
 Use `test:e2e:react` or `test:e2e:preact` to target a single runtime.
 
-To run the same suite against the real production container — the image the
-[`Dockerfile`](Dockerfile) builds, served by static-web-server — use:
+To run the same suite against a real production container — the full
+[`Dockerfile`](Dockerfile), which builds from source and serves the result with
+static-web-server — use:
 
 ```sh
 npm run test:e2e:docker
@@ -75,16 +76,26 @@ npm run test:e2e:docker
 This builds the image, runs it, points Playwright at the container, and tears
 it down afterwards ([`scripts/e2e-docker.sh`](scripts/e2e-docker.sh) +
 [`playwright.docker.config.mts`](playwright.docker.config.mts)). It confirms the
-in-container `npm ci` + build and that static-web-server serves the result —
-the one path the GitHub Pages build never exercises.
+in-container `npm ci` + build and that static-web-server serves the result. CI
+does not use this full image — it copies the already-built `dist` into the
+copy-only [`Dockerfile.ci`](Dockerfile.ci) instead (see below).
 
-CI runs these in parallel: a **checks** job (lint, type check, audit, signature
-verification) gates two downstream jobs that run at the same time — **pages**
-(build + Preact-preview e2e + SBOM/attestation + deploy to Pages) and **docker**,
-which as discrete, individually-reported steps builds the image, starts the
-container, runs the e2e suite against it, stops it, and — only if all of that
-passes — publishes the image to the GitHub Container Registry
-(`ghcr.io/<owner>/react-sample-app`, tagged with the commit SHA and `latest`).
+CI is a fan-out. A **checks** job (lint, type check, audit, signature
+verification) gates two jobs that run in parallel: **react** (the React parity
+e2e against the Vite dev server) and **build**, which does the one `npm ci` +
+`vite build`, runs the Preact-preview e2e, attests the bundle SBOM, and uploads
+the built `dist` once. Two publishers then consume that single build — gated on
+both upstream jobs passing, so nothing ships if a test fails:
+
+- **pages** deploys the `dist` to GitHub Pages.
+- **docker** copies the same `dist` into a static-web-server image via the
+  CI-only [`Dockerfile.ci`](Dockerfile.ci) (no Node, no `npm ci`, no rebuild),
+  smoke-tests the running container, then publishes it to the GitHub Container
+  Registry (`ghcr.io/<owner>/react-sample-app`, tagged with the commit SHA and
+  `latest`) with build-provenance and OS-layer SBOM attestations.
+
+The production build uses a relative base (`base: "./"`), so the one `dist`
+serves correctly at both the Pages project subpath and the container root.
 
 [Playwright]: https://playwright.dev/
 
@@ -98,19 +109,24 @@ dependencies), both of which prompt before making changes.
 
 ### Base images
 
-The Dockerfile builds on two digest-pinned base images: `node:<version>-alpine`
-(build stage) and
-`ghcr.io/static-web-server/static-web-server:<version>-alpine` (final stage).
-Each is pinned by `@sha256:` digest so builds and deployments are reproducible. The Node image's version additionally drives `engines.node` in
-`package.json` (enforced by `engine-strict`, and read by CI via `setup-node`'s
-`node-version-file`) and the matching `@types/node` major.
+The project has two Dockerfiles. The full [`Dockerfile`](Dockerfile) builds the
+app from source in a `node:<version>-alpine` stage and serves it from a
+`ghcr.io/static-web-server/static-web-server:<version>-alpine` stage; it is what
+`npm run test:e2e:docker` exercises. The CI-only
+[`Dockerfile.ci`](Dockerfile.ci) skips the build entirely — it copies the `dist`
+CI's `build` job already produced into that same static-web-server image — so it
+pins only that one base. Each `FROM` is pinned by `@sha256:` digest so builds and
+deployments are reproducible. The Node image's version additionally drives
+`engines.node` in `package.json` (enforced by `engine-strict`, and read by CI via
+`setup-node`'s `node-version-file`) and the matching `@types/node` major.
 
 The [`upgrade-images.mjs`](upgrade-images.mjs) script keeps all of that current.
 For each image it resolves the rolling tag's current manifest digest, reads the
 concrete version from the image itself (Node's `NODE_VERSION` env; the
 static-web-server image's OCI version label), and rewrites the pinned `FROM`
-line. For the Node image it also updates `engines.node` and aligns `@types/node`
-to the matching major.
+line wherever it appears — static-web-server is pinned in both Dockerfiles, so
+both are kept in sync. For the Node image it also updates `engines.node` and
+aligns `@types/node` to the matching major.
 
 ```sh
 node ./upgrade-images.mjs
