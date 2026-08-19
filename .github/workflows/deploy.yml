@@ -37,6 +37,51 @@ jobs:
       - name: Type check
         run: npm run check
 
+  diff:
+    name: Detect changed deploy targets
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    outputs:
+      pages_changed: ${{ steps.diff.outputs.pages_changed }}
+      docker_changed: ${{ steps.diff.outputs.docker_changed }}
+    steps:
+      - name: Checkout your repository using git
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+      - name: Diff build inputs against the last deployed commit
+        id: diff
+        run: |
+          set -euo pipefail
+          common=(':!.github' ':!*.md' ':!Wireframes' ':!e2e'
+                  ':!playwright.config.ts' ':!playwright.docker.config.mts'
+                  ':!scripts' ':!eslint.config.mjs' ':!upgrade-images.mjs'
+                  ':!vite.config.mts' ':!Dockerfile')
+          pages_excludes=("${common[@]}" ':!Dockerfile.ci')
+          docker_excludes=("${common[@]}")
+
+          changed_since() {
+            local ref="$1"; shift
+            if ! git fetch --depth=1 origin "$ref" >/dev/null 2>&1; then
+              REPLY=true; return
+            fi
+            if git diff --quiet FETCH_HEAD HEAD -- . "$@"; then
+              REPLY=false
+            else
+              REPLY=true
+            fi
+          }
+
+          changed_since refs/deploy/pages "${pages_excludes[@]}"
+          pages_changed="$REPLY"
+          changed_since refs/deploy/docker "${docker_excludes[@]}"
+          docker_changed="$REPLY"
+          {
+            echo "pages_changed=$pages_changed"
+            echo "docker_changed=$docker_changed"
+          } >> "$GITHUB_OUTPUT"
+          echo "pages_changed=$pages_changed docker_changed=$docker_changed"
+
   react:
     name: Test the React runtime (parity)
     needs: checks
@@ -71,7 +116,7 @@ jobs:
 
   build:
     name: Build the production bundle
-    needs: checks
+    needs: [checks, diff]
     runs-on: ubuntu-latest
     timeout-minutes: 15
     permissions:
@@ -127,19 +172,23 @@ jobs:
           path: dist/LICENSES.txt
           retention-days: 90
       - name: Package Pages artifact
+        if: needs.diff.outputs.pages_changed == 'true'
         run: tar --dereference --hard-dereference --directory ./dist --exclude=LICENSES.txt -cvf "$RUNNER_TEMP/artifact.tar" .
       - name: Attest SBOM for the deployment artifact
+        if: needs.diff.outputs.pages_changed == 'true'
         uses: actions/attest@508db95dd578ae2727ebd6217d5ba78e4fbda05d # v4.2.1
         with:
           subject-path: ${{ runner.temp }}/artifact.tar
           sbom-path: sbom.cdx.json
       - name: Upload Pages artifact
+        if: needs.diff.outputs.pages_changed == 'true'
         uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
         with:
           name: github-pages
           path: ${{ runner.temp }}/artifact.tar
           retention-days: 1
       - name: Upload dist for the Docker image
+        if: needs.diff.outputs.docker_changed == 'true'
         uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
         with:
           name: dist
@@ -148,14 +197,15 @@ jobs:
 
   pages:
     name: Deploy to Pages
-    needs: [react, build]
+    needs: [react, build, diff]
+    if: needs.diff.outputs.pages_changed == 'true'
     runs-on: ubuntu-latest
     timeout-minutes: 15
     environment:
       name: github-pages
       url: ${{ steps.deployment.outputs.page_url }}
     permissions:
-      contents: read
+      contents: write # advance refs/deploy/pages after a successful deploy
       pages: write # deploy the built site to GitHub Pages
       id-token: write # OIDC token for the Pages deploy
     steps:
@@ -164,14 +214,23 @@ jobs:
       - name: Deploy to GitHub Pages
         id: deployment
         uses: actions/deploy-pages@cd2ce8fcbc39b97be8ca5fce6e763baed58fa128 # v5.0.0
+      - name: Record this commit as the last Pages deploy
+        env:
+          GH_TOKEN: ${{ github.token }}
+          REPO: ${{ github.repository }}
+          SHA: ${{ github.sha }}
+        run: |
+          gh api --method PATCH "repos/$REPO/git/refs/deploy/pages" -f sha="$SHA" -F force=true \
+            || gh api --method POST "repos/$REPO/git/refs" -f ref="refs/deploy/pages" -f sha="$SHA"
 
   docker:
     name: Build, test & publish Docker image
-    needs: [react, build]
+    needs: [react, build, diff]
+    if: needs.diff.outputs.docker_changed == 'true'
     runs-on: ubuntu-latest
     timeout-minutes: 15
     permissions:
-      contents: read
+      contents: write # advance refs/deploy/docker after a successful publish
       packages: write # push the image to the GitHub Container Registry
       id-token: write # OIDC token for the image attestations
       attestations: write # record image provenance and the image SBOM
@@ -244,3 +303,11 @@ jobs:
           subject-digest: ${{ steps.push.outputs.digest }}
           sbom-path: image.sbom.cdx.json
           push-to-registry: true
+      - name: Record this commit as the last Docker publish
+        env:
+          GH_TOKEN: ${{ github.token }}
+          REPO: ${{ github.repository }}
+          SHA: ${{ github.sha }}
+        run: |
+          gh api --method PATCH "repos/$REPO/git/refs/deploy/docker" -f sha="$SHA" -F force=true \
+            || gh api --method POST "repos/$REPO/git/refs" -f ref="refs/deploy/docker" -f sha="$SHA"
