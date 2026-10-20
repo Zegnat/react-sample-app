@@ -182,8 +182,8 @@ npm run lint && npm run check && npm run build
 ```
 
 **Note:** `@types/node` must stay on a major version that matches the Node.js
-version in `engines`. The project runs on the Node.js 24 LTS line (pinned for
-container compatibility), so `@types/node` should remain on `24.x`
+version in `engines`. The project runs on the Node.js 26 line (pinned for
+container compatibility), so `@types/node` should remain on `26.x`
 until the project upgrades Node.js.
 
 ### Pinned `overrides`

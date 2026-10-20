@@ -32,7 +32,7 @@
     "@playwright/test": "1.62.0",
     "@preact/compat": "18.3.2",
     "@preact/preset-vite": "2.10.6",
-    "@types/node": "24.13.3",
+    "@types/node": "26.6.5",
     "@types/react": "19.2.17",
     "@types/react-dom": "19.2.3",
     "eslint": "10.8.0",
@@ -47,7 +47,7 @@
     "@babel/plugin-transform-runtime": "^7.29.0"
   },
   "engines": {
-    "node": "24.19.0",
+    "node": "26.12.0",
     "npm": ">=11.10.0"
   }
 }
