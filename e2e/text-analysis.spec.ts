@@ -9,9 +9,7 @@ test.describe("Text Analysis", () => {
     await expect(
       page.getByRole("textbox", { name: /user types text here/i }),
     ).toBeVisible();
-    await expect(
-      page.getByRole("button", { name: /submit/i }),
-    ).toBeVisible();
+    await expect(page.getByRole("button", { name: /submit/i })).toBeVisible();
   });
 
   test("does not submit when textarea is empty", async ({ page }) => {

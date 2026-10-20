@@ -43,7 +43,9 @@ export const Form = ({
           multiline
           rows={5}
           value={value}
-          onChange={(e) => { setValue(e.target.value); }}
+          onChange={(e) => {
+            setValue(e.target.value);
+          }}
           onKeyDown={handleKeyDown}
         />
       </FormControl>

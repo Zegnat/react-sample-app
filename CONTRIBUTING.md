@@ -8,16 +8,16 @@ All configuration lives in [`.npmrc`](.npmrc) and
 
 ### npm Configuration (`.npmrc`)
 
-| Setting | Value | Why |
-|---|---|---|
-| `ignore-scripts` | `true` | Blocks all dependency lifecycle scripts (`preinstall`, `postinstall`, etc.), the most common vector for supply chain attacks. |
-| `audit` | `true` | Runs a security audit on every install. |
-| `audit-level` | `moderate` | Surfaces moderate-or-higher vulnerabilities. |
-| `engine-strict` | `true` | Enforces the `engines.node` version from `package.json`. |
-| `package-lock` | `true` | Ensures the lockfile is always used and kept in sync. |
-| `save-exact` | `true` | Pins exact versions when adding new dependencies (no `^` or `~` ranges). |
-| `strict-peer-deps` | `true` | Fails on peer dependency conflicts instead of silently accepting mismatches. |
-| `min-release-age` | `7` | Refuses to install any package version published less than 7 days ago, giving the community time to detect and remove malicious releases. |
+| Setting            | Value      | Why                                                                                                                                       |
+| ------------------ | ---------- | ----------------------------------------------------------------------------------------------------------------------------------------- |
+| `ignore-scripts`   | `true`     | Blocks all dependency lifecycle scripts (`preinstall`, `postinstall`, etc.), the most common vector for supply chain attacks.             |
+| `audit`            | `true`     | Runs a security audit on every install.                                                                                                   |
+| `audit-level`      | `moderate` | Surfaces moderate-or-higher vulnerabilities.                                                                                              |
+| `engine-strict`    | `true`     | Enforces the `engines.node` version from `package.json`.                                                                                  |
+| `package-lock`     | `true`     | Ensures the lockfile is always used and kept in sync.                                                                                     |
+| `save-exact`       | `true`     | Pins exact versions when adding new dependencies (no `^` or `~` ranges).                                                                  |
+| `strict-peer-deps` | `true`     | Fails on peer dependency conflicts instead of silently accepting mismatches.                                                              |
+| `min-release-age`  | `7`        | Refuses to install any package version published less than 7 days ago, giving the community time to detect and remove malicious releases. |
 
 If a dependency legitimately needs install scripts (e.g. a native addon),
 allow it explicitly after review:
@@ -189,7 +189,7 @@ until the project upgrades Node.js.
 ### Pinned `overrides`
 
 The `overrides` block in `package.json` keeps `@babel/plugin-transform-runtime`
-on the `^7.29.0` (Babel 7) line. `@vitejs/plugin-react` pulls an *optional*
+on the `^7.29.0` (Babel 7) line. `@vitejs/plugin-react` pulls an _optional_
 `@rolldown/plugin-babel` chain; without the override, npm greedily resolves
 that chain to `@babel/plugin-transform-runtime@8`, which requires
 `@babel/core@^8` and conflicts with the Babel 7 that `@preact/preset-vite`
