@@ -13,7 +13,7 @@ trap cleanup EXIT
 
 cleanup # clear any stale container from a previous run
 docker build -t "$IMAGE" .
-docker run -d --rm --name "$NAME" -p "$PORT:80" "$IMAGE" >/dev/null
+docker run -d --rm --name "$NAME" --read-only --cap-drop=ALL --security-opt=no-new-privileges -p "$PORT:80" "$IMAGE" >/dev/null
 
 # Wait for static-web-server to come up.
 for _ in $(seq 1 60); do

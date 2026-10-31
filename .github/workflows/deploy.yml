@@ -250,7 +250,7 @@ jobs:
       - name: Build Docker image
         run: docker buildx build --load -t sws-ci -f Dockerfile.ci --cache-from type=gha --cache-to type=gha,mode=max .
       - name: Start container
-        run: docker run -d --rm --name sws-ci -p 4173:80 sws-ci
+        run: docker run -d --rm --name sws-ci --read-only --cap-drop=ALL --security-opt=no-new-privileges -p 4173:80 sws-ci
       - name: Smoke test the container
         run: |
           ok=false
