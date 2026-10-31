@@ -9,5 +9,6 @@ COPY ["analysis.ts", "vite.build.config.mts", "/app/"]
 COPY ["src", "/app/src"]
 RUN npm run build
 
-FROM ghcr.io/static-web-server/static-web-server:2.44.1-alpine@sha256:2fe3e5c0a20691f23fb270338578c8d31b5f7a19abb308c4c1ec901a7eefbe2e AS final
-COPY --from=build --chown=sws:sws ["/app/dist", "/home/sws/public"]
+FROM ghcr.io/static-web-server/static-web-server:2.44.1@sha256:94618e3d17802265a21926217e6f9e7832b311b6fbf5933684001739fafed06a AS final
+COPY --from=build ["/app/dist", "/public"]
+USER 65532:65532

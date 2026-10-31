@@ -14,7 +14,7 @@ import { readFileSync, writeFileSync } from "node:fs";
 // Rolling tags mean reruns pick up patch/minor releases within the current
 // major on their own; a major jump shows up in the diff for a human to review.
 // Node tracks `lts-alpine`, so it advances to the next LTS major automatically;
-// static-web-server tracks `2-alpine`, so a v3 is a deliberate edit of its tag
+// static-web-server tracks `2`, so a v3 is a deliberate edit of its tag
 // below. `version.kind` says where the concrete version lives in the image
 // config: an "env" entry (`KEY=value` in config.Env) or a "label".
 
@@ -45,20 +45,19 @@ const IMAGES = [
     syncNode: true,
   },
   {
-    // static-web-server publishes no cross-major alpine tag (no `alpine` /
-    // `latest-alpine`), so we resolve the major-scoped rolling `2-alpine` tag
-    // but pin the concrete `<version>-alpine` it currently points to. Moving to
-    // a future major (v3) is a deliberate edit of this tag.
+    // We resolve the major-scoped rolling `2` tag (the scratch image) but pin
+    // the concrete `<version>` it currently points to. Moving to a future major
+    // (v3) is a deliberate edit of this tag.
     name: "static-web-server",
     tokenUrl:
       "https://ghcr.io/token?scope=repository:static-web-server/static-web-server:pull",
     manifestBase: "https://ghcr.io/v2/static-web-server/static-web-server",
-    tag: "2-alpine",
+    tag: "2",
     version: { kind: "label", key: "org.opencontainers.image.version" },
     pattern:
-      /ghcr\.io\/static-web-server\/static-web-server:\d+\.\d+\.\d+-alpine(?:@sha256:[a-f0-9]{64})?/g,
+      /ghcr\.io\/static-web-server\/static-web-server:\d+\.\d+\.\d+(?:@sha256:[a-f0-9]{64})?/g,
     replacement:
-      "ghcr.io/static-web-server/static-web-server:{version}-alpine@{digest}",
+      "ghcr.io/static-web-server/static-web-server:{version}@{digest}",
     syncNode: false,
   },
 ];

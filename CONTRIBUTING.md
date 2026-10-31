@@ -110,8 +110,9 @@ dependencies), both of which prompt before making changes.
 ### Base images
 
 The project has two Dockerfiles. The full [`Dockerfile`](Dockerfile) builds the
-app from source in a `node:<version>-alpine` stage and serves it from a
-`ghcr.io/static-web-server/static-web-server:<version>-alpine` stage; it is what
+app from source in a `node:<version>-alpine` stage and serves it from the
+shellless `ghcr.io/static-web-server/static-web-server:<version>` stage (a
+scratch image holding only the server binary); it is what
 `npm run test:e2e:docker` exercises. The CI-only
 [`Dockerfile.ci`](Dockerfile.ci) skips the build entirely — it copies the `dist`
 CI's `build` job already produced into that same static-web-server image — so it
@@ -148,9 +149,8 @@ and any jump — including a major one — shows up in the diff for review:
   next LTS major on its own once Node promotes one (e.g. 24.x → 26.x). When it
   does, the script also bumps `@types/node` to match — review and test
   thoroughly.
-- **static-web-server** has no cross-major alpine tag, so it tracks the
-  major-scoped `2-alpine` and pins the concrete `<version>-alpine` it resolves
-  to. It stays on v2 until you deliberately bump the `tag` in
+- **static-web-server** tracks the major-scoped `2` and pins the concrete
+  `<version>` it resolves to. It stays on v2 until you deliberately bump the `tag` in
   `upgrade-images.mjs`.
 
 ### npm Packages
