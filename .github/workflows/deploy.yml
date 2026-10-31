@@ -297,6 +297,21 @@ jobs:
           format: cyclonedx-json
           output-file: image.sbom.cdx.json
           upload-artifact: false
+      - name: Download the bundle SBOM
+        uses: actions/download-artifact@9000827ccba6bdab643e8b6fd33ac0654aef8333 # v8.0.2
+        with:
+          name: sbom
+      # Syft detects neither the npm packages in the minified bundle nor the static-web-server binary
+      - name: Merge bundle and server into the image SBOM
+        run: |
+          sws_version="$(sed -nE 's#.*static-web-server/static-web-server:([0-9.]+)-alpine.*#\1#p' Dockerfile.ci)"
+          [ -n "$sws_version" ] || { echo "static-web-server version not found in Dockerfile.ci"; exit 1; }
+          jq --slurpfile bundle sbom.cdx.json --arg v "$sws_version" '.components += [{
+              type: "application", name: "static-web-server", version: $v,
+              purl: "pkg:cargo/static-web-server@\($v)",
+              licenses: [{expression: "MIT OR Apache-2.0"}]
+            }] + $bundle[0].components' image.sbom.cdx.json > merged.cdx.json
+          mv merged.cdx.json image.sbom.cdx.json
       - name: Attest the image SBOM
         uses: actions/attest@1e69f48acb82d1966a394da916b4c1698aa569d6 # v4.2.2
         with:
